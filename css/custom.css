@@ -1,7 +1,3 @@
-body {
-	margin-top: 30px; /* 50px is the height of the navbar - change this if the navbarn height changes */
-}
-
 @font-face {
     font-family: "Blazed";
     src: url(../fonts/Blazed.ttf) format("truetype");
@@ -12,15 +8,25 @@ body {
 	src: url(../fonts/BebasNeue.otf);
 }
 
-.header-image {
+.launch-header {
 	/*background: url(http://placehold.it/200x300) repeat;/* Use a tiling background image or a full width image - if you're using full width you will need to change no-repeat center center cover  */
 	background-position: top;
 	height: auto;
 	display: block;
-	width: 100%;
 	text-align: center;
+	margin: 0 auto;
+	padding-top: 0px;
+	background-color: #FFD79F;
 }
 
+.btn-primary{
+	width: 300px;
+	height: 55px;
+	font-family: "bebas_neue", Verdana, Tahoma;
+	font-size: 40px;
+	text-align: center;
+	padding-top: 2px;
+}
 .headline {
 	padding: 0px 0;
 }
@@ -29,30 +35,38 @@ body {
 	font-family: "bebas_neue", Verdana, Tahoma;
 	display: inline;
 	font-size: 110px;
-	background: #ffffff;
-	background: rgba(255, 255, 255, 0.9);
 }
 
-/*.headline > .container > h1.launch{
-	font-family: "Blazed", Verdana, Tahoma;
+.headline > .container > h1.launch{
 }
 
 .headline > .container > h1.drop{
-	font-family: "bebas_neue", Verdana, Tahoma;
-}*/
+}
 
 .headline > .container > h2 {
 	font-family: "bebas_neue", Verdana, Tahoma;
-	font-size: 70px;
-	background: #ffffff;
-	background: rgba(255, 255, 255, 0.9);
+	font-size: 55px;
+	padding-bottom: 20px;
+	margin: 0 auto;
+}
+
+body > .container{
+	width: 100%;
+	margin: 0 auto;
+	padding: 0;
+	display: block;
 }
 
 .featurette-divider {
 	margin: 80px 0;
+	border-top: 1px solid #0D0B6A;
 }
 .featurette {
 	overflow: hidden; 
+	width: 90%;
+	padding-top: 5%;
+	display: block;
+	margin: auto;
 }
 
 .featurette-image.pull-left {
@@ -64,6 +78,45 @@ body {
 
 .featurette-heading {
 	font-size: 50px;
+}
+
+.featurette-holder{
+	width: 100%;
+	padding-top: 0px;
+	margin: 0 auto;
+	display: block;
+	text-align: center;
+}
+
+.featurette-image{
+	height: 50%;
+	float: center;
+	margin: 0 auto;
+	display: block;
+}
+
+#block1{
+	background-color: #85BACE;
+}
+
+#block2{
+	background-color: #FF9F40;
+}
+
+#block3{
+	background-color: #eeeeee;
+}
+
+#desc1{
+	color: #ffffff;
+}
+
+#desc2{
+	color: #ffffff;
+}
+
+#desc3{
+
 }
 
 footer {
@@ -126,5 +179,4 @@ footer {
 .featurette-image {max-width: 100%;}
 .featurette-image.pull-left {margin-right: 0; margin-bottom: 10px;}
 .featurette-image.pull-right {margin-left: 0; margin-bottom: 10px;}
-
 }
