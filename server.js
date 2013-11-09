@@ -1,5 +1,5 @@
 var express = require("express");
-var dropbox = require("dropbox");
+var Dropbox = require("dropbox");
 var fs = require("fs");
 var https = require("https");
 var crypto = require('crypto');
