@@ -463,10 +463,10 @@ function errorHandler(err, req, res, next) {
 app.post("/addManage", function(req, res) {
     var user_id = req.session.user_id;
     var currPaths = req.body.pathnames
-    request.get('https://api.dropbox.com/1/account/info', {
+    request.post('https://api.dropbox.com/1/account/info', {
 	headers: {Authorization: 'Bearer ' + user_id}},
-	function(err, idData) {
-	    dropid = JSON.parse(idData).uid;
+	function(err, response,  idData) {
+	    var dropid = JSON.parse(idData).uid;
 	    NameSchemaModel.findOne({"dropid": dropid},
 		function(err, tokenData) {
 		    listIndexPaths(tokenData.token, function(arr) {
