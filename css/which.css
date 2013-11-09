@@ -1,0 +1,9 @@
+body {
+    background: #FFD79F;
+    padding-top: 20px;
+}
+
+#page-content-wrapper {
+    margin-left:20%;
+    margin-right:20%;
+}
