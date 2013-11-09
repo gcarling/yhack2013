@@ -587,6 +587,11 @@ function listIndexPaths(token, callback) {
                 function (err, res, bod) {
                     var dirMeta = JSON.parse(bod);
                     if (dirMeta) {
+                        if(dirMeta.is_dir == false) {
+                          count[0] = count[0] - 1;
+                          if (count[0] == 0) callback(paths);
+                          return;
+                        }
                         dirMeta.contents.forEach(function (item) {
                             if (typeof item.path != 'undefined' && item.path) {
                                 var split = item.path.split("/");
