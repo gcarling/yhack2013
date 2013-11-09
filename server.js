@@ -115,10 +115,14 @@ function generateManage(user_sites){
 
 app.get('/manage',  function(req, res) {
   var userid = req.session.user_id;
-  
+  if (!userid) { 
+      res.redirect("/");
+      return;
+  }
   User.findOne({uniqueid : userid}, function(err, user) {
-        if(err || !(user)) {
-            throw err;
+        if(err || !user) {
+            res.redirect("/");
+            return;
         }
         var access_token = user.dtoken;
         request.get('https://api.dropbox.com/1/account/info', {
@@ -384,18 +388,25 @@ function getRedirect(dropid, userid, token, res) {
                              siteList: []});
             newList.save();
             // search dropbox for index paths and send to which 
-            listIndexPaths(token,
-                function (paths) {
-                    console.log(paths);
-                    if (paths.length == 0) {
-                        // send to create
-                        res.redirect("../createone");
-                    } 
-                    else {
-                        res.location("../which");
-                        res.send(generateWhich(paths));
-                    }
+            NameSchemaModel.findOne({dropid: dropid}, function(err, site) {
+                if (site) {
+                    res.redirect("../manage");
+                }
+                else {
+                listIndexPaths(token,
+                    function (paths) {
+                        console.log(paths);
+                        if (paths.length == 0) {
+                            // send to create
+                            res.redirect("../createone");
+                        } 
+                        else {
+                            res.location("../which");
+                            res.send(generateWhich(paths));
+                        }
                 });
+                }
+            });
         }
         else {
             // send to manage **NEEDS TO CREATE THIS GET HANDLER 
