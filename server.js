@@ -223,7 +223,8 @@ app.post('/createcallback', function(req, res) {
                 throw err;
             }
             var access_token = user.dtoken;
-            request.post('https://api.dropbox.com/1/fileops/create_folder?root=dropbox&path=' + encodeURI("/" + newfolder), {
+            request.post('https://api.dropbox.com/1/fileops/create_folder?root=dropbox&path=' + 
+                encodeURI("/" + newfolder), {
                 root : "dropbox",
                 path : "/" + newfolder,
                 headers: { Authorization: 'Bearer ' + access_token }
