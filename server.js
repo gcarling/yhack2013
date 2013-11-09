@@ -123,6 +123,7 @@ app.get('/manage',  function(req, res) {
         function(error, response, body) {
         if(error) {throw error}
         dropid = body.uid;
+        console.log(dropid);
         SiteListModel.findOne({dropid : dropid}, function(err, siteList) {
           returnhtml = generateManage(siteList.siteList);
           res.send(returnhtml);            
@@ -428,9 +429,9 @@ app.post("/addManage", function(req, res) {
 			if(arr.length != 0) {
 			    var outpaths = new Array();
 			    var count = 0;
-			    for(int i = 0; i < arr.length; i++) {
+			    for(var i = 0; i < arr.length; i++) {
 				var found = false;
-				for(int j = 0; j < currPaths.length; j++) {
+				for(var j = 0; j < currPaths.length; j++) {
 				    if(currPaths[j] === arr[i])
 					found = true;
 				}
@@ -445,7 +446,7 @@ app.post("/addManage", function(req, res) {
 		    });
 		});
 	});
-}
+});
 
 app.get("/whichtest", function (req, res) {
     res.send(generateWhich(["/bin/sleep", "/course/cs033/hi"]));
