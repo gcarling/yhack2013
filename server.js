@@ -232,37 +232,42 @@ app.post('/createcallback', function(req, res) {
                 throw error;
                 res.redirect("./createone");
                 }
-                console.log("logging body");
-                console.log(body);
-                console.log("logged body");
-                //add folder here
-                request.post('https://api.dropbox.com/1/account/info', {
-                headers: { Authorization: 'Bearer ' + access_token}},
-                function(error, response, body) {
-                    if(error) {throw error}
-                    SiteListModel.findOne({"dropid": JSON.parse(body).uid},
-                    function(err, id) {
-                        if(err) {throw err}
-                        if(id) {
-                        id.siteList.push({ sitename : newfolder,  path : "/" + newfolder});
-                        id.save();
-                        }
-                        else {
-                        var newNameSchema = new NameSchemaModel({
-                            name: newfolder,
-                            filePath: "/" + newfolder,
-                            dropid: JSON.parse(body).uid,
-                            token: token});
-                        newNameSchema.save();
-                        var newList = new SiteListModel({
-                            dropid: JSON.parse(body).uid,
-                            siteList: []});
-                        newList.siteList.push({sitename : newfolder, path : "/" + newfolder});
-                        newList.save();
-                        }
-                        res.redirect("../manage");
-                    });
-                });
+		request.post("https://api-content.dropbox.com/1/files_put/dropbox/" +
+			     newfolder + "/index.html?param=val", {}, 
+		    function(err2, response2, body2) {
+			if(err2) {throw err2;}
+			console.log("logging body");
+			console.log(body);
+			console.log("logged body");
+			//add folder here
+			request.post('https://api.dropbox.com/1/account/info', {
+			    headers: { Authorization: 'Bearer ' + access_token}},
+		          function(error, response, body) {
+			      if(error) {throw error}
+			      SiteListModel.findOne({"dropid": JSON.parse(body).uid},
+		            function(err, id) {
+				if(err) {throw err}
+				if(id) {
+				    id.siteList.push({ sitename : newfolder,  path : "/" + newfolder});
+				    id.save();
+				}
+				else {
+				    var newNameSchema = new NameSchemaModel({
+					name: newfolder,
+					filePath: "/" + newfolder,
+					dropid: JSON.parse(body).uid,
+					token: token});
+				    newNameSchema.save();
+				    var newList = new SiteListModel({
+					dropid: JSON.parse(body).uid,
+					siteList: []});
+				    newList.siteList.push({sitename : newfolder, path : "/" + newfolder});
+				    newList.save();
+				}
+				res.redirect("../manage");
+			    });
+			  });
+		    });
                 
             });
         });
