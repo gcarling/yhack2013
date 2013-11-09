@@ -42,7 +42,7 @@ app.use(express.static(__dirname));
 // Install Utilities
 app.use(express.bodyParser());
 app.use(express.cookieParser());
-app.use(express.session({secret: "Grahammer'd Loins."});
+app.use(express.session({secret: "Grahammer'd Loins."}));
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(logErrors);
@@ -75,6 +75,10 @@ function generateRedirectURI(req) {
                         pathname: app.path() + '/callback'
         });
 }
+
+app.get('/createone', function(req, res) {
+  res.sendfile("./createone.html");
+});
 
 app.get('/dropbox', function (req, res) {
         var csrfToken = generateCSRFToken();
