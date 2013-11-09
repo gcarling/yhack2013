@@ -1,9 +1,4 @@
 @font-face {
-    font-family: "Blazed";
-    src: url(../fonts/Blazed.ttf) format("truetype");
-}
-
-@font-face {
 	font-family: "bebas_neue";
 	src: url(../fonts/BebasNeue.otf);
 }
@@ -15,7 +10,7 @@
 	display: block;
 	text-align: center;
 	margin: 0 auto;
-	padding-top: 0px;
+	padding-top: 30px;
 	background-color: #FFD79F;
 }
 
@@ -25,12 +20,9 @@
 	font-family: "bebas_neue", Verdana, Tahoma;
 	font-size: 40px;
 	text-align: center;
-	margin-bottom: 20px;
+	margin-top: 20px;
 	padding-top: 2px;
-}
-.featureBullets{
-    text-align:left;
-//    padding-left:2;
+	margin-right: 20px;
 }
 
 .launch{
@@ -108,15 +100,16 @@ body > .container{
 	margin: 0 auto;
 	display: block;
 	text-align: center;
+	padding-bottom: 0px;
 }
 
 .featurette-image{
-	height: 50%;
-	/*width: 450px;*/
+	height: 400px;
+	width: 400px;
 	float: center;
 	margin: 0 auto;
 	display: block;
-
+	padding-bottom: 0px;
 }
 
 #desc-box{
@@ -129,6 +122,12 @@ body > .container{
 
 .feature-list{
 	text-align: center;
+}
+
+.feature-bullets{
+	font-size: 16px;
+    text-align:left;
+    padding-left: 20px;
 }
 
 /* RESPONSIVE CSS */

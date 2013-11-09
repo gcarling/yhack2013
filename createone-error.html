@@ -19,8 +19,18 @@
 	  	<h1>Create a Site</h1>
 		<form name="createform" action="createcallback" method="post">
 		<input type="text" name="sitename" placeholder="name your site!" class="new-name"></br>
+    <span class="error" id="name-error" type="hidden">That name is already taken.</span></br>
 		<input type="submit" class="btn btn-primary" value="Submit">
 		</form>
+
+    <!-- scripts -->
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.js"></script>
+
 	</body>
+
+  <script>
+    console.log($('#name-error').fadeIn(1000));
+  </script>
 
 </html>
