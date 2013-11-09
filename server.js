@@ -158,7 +158,7 @@ app.get('/callback', function (req, res) {
                 var token = data.access_token;
                 addUserToDB(token, "name", unique_pid);
                 // use the bearer token to make API calls
-                requesr.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
+                request.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
                         list : true,
                         file_limit:25000,
                         headers: { Authorization: 'Bearer ' + token }
@@ -225,6 +225,8 @@ function errorHandler(err, req, res, next) {
 /*
  * HTML ASSEMBLING aka we should really use a templating language
  */
+
+
 
 app.get("/whichtest", function (req, res) {
     res.send(whichSites(["/bin/sleep", "/course/cs033/hi"]));
