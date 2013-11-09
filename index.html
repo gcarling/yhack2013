@@ -6,47 +6,26 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Basic Company Template for Bootstrap 3</title>
+    <title>LaunchDrop</title>
 
-    <!-- Bootstrap core CSS -->
+    <!-- Bootstrap CSS -->
     <link href="css/bootstrap.css" rel="stylesheet">
 
-    <!-- Custom CSS for the Template -->
-    <link href="css/template.css" rel="stylesheet">
+    <!-- Custom -->
+    <link href="css/custom.css" rel="stylesheet">
   </head>
 
   <body>
 
-    <!--<nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="index.html">Start Bootstrap</a>
-        </div>
-
-         Collect the nav links, forms, and other content for toggling
-        <div class="collapse navbar-collapse navbar-ex1-collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="#about">About</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-        </div> /.navbar-collapse
-      </div> /.container
-    </nav> -->
-
-    <div class="header-image">
+    <div class="launch-header">
 
       <div class="headline">
         <div class="container">
           <img src="images/launchdroplogo.png"/></br>
           <h1 class="launch">Launch</h1><h1 class="drop">Drop</h1>
-          <h2>Site Launching Made Easy</h2>
+          <h2>Websites Made Easy</h2>
+          <button class="btn btn-primary">Launch</button></br>
+          <button class="btn btn-primary">Read More</button>
         </div>
       </div>
 
@@ -56,40 +35,43 @@
 
       <!-- START THE FEATURETTES -->
 
-      <hr class="featurette-divider">
+      <!-- <hr class="featurette-divider"> -->
 
-      <div class="featurette" id="about">
-        <img class="featurette-image img-circle img-responsive pull-right" src="http://www.techbarber.com/wp-content/uploads/2013/01/Dropbox-Logo.png">
-        <h2 class="featurette-heading">Serving Your Webpage </br><span class="text-muted">Without The Hassle Of Buying Servers</span></h2>
-        <p class="lead">Deploying your website has never been easier.  With LaunchDrop, you just place the files for your site in your Dropbox, and we do the rest.</p>
+      <div class="featurette-holder" id="block1">
+        <div class="featurette">
+          <img class="featurette-image img-circle img-responsive pull-right" src="http://www.techbarber.com/wp-content/uploads/2013/01/Dropbox-Logo.png">
+          <h2 class="featurette-heading">Serving Your Webpage </br><span class="text-muted" id="desc1">Without The Hassle Of Buying Servers</span></h2>
+          <p class="lead">Deploying your website has never been easier.  With LaunchDrop, you just place the files for your site in your Dropbox, and we do the rest.</p>
+        </div>
       </div>
 
-      <hr class="featurette-divider">
+      <!-- <hr class="featurette-divider"> -->
 
-      <div class="featurette" id="services">
-        <img class="featurette-image img-circle img-responsive pull-left" src="http://www.techbarber.com/wp-content/uploads/2013/01/Dropbox-Logo.png">
-        <h2 class="featurette-heading">Easy to Set Up </br><span class="text-muted">You Only Need A Dropbox Account</span></h2>
-        <p class="lead">If you have a dropbox folder with your site's files in it, you're ready to go!  Just link your Dropbox to LaunchDrop, and your site will get served without any unnecessary work. Once your site is live, it is automatically updated when your Dropbox gets synced.</p>
+      <!-- <div class="featurette-holder" id="block2">
+        <div class="featurette">
+          <img class="featurette-image img-circle img-responsive pull-left" src="images/db_login.png">
+          <h2 class="featurette-heading">Easy to Set Up </br><span class="text-muted" id="desc2">You Only Need A Dropbox Account</span></h2>
+          <p class="lead">If you have a dropbox folder with your site's files in it, you're ready to go!  Just link your Dropbox to LaunchDrop, and your site will get served without any unnecessary work. Once your site is live, it is automatically updated when your Dropbox gets synced.</p>
+        </div>
       </div>
 
-      <hr class="featurette-divider">
-
-      <div class="featurette" id="contact">
-        <img class="featurette-image img-circle img-responsive pull-right" src="http://www.techbarber.com/wp-content/uploads/2013/01/Dropbox-Logo.png">
-        <h2 class="featurette-heading">Completely Free </br><span class="text-muted">No Need To Pay For Server Space</span></h2>
-        <p class="lead">We serve your site directly from your Dropbox, without storing your files on our server. This means that you don't have to pay for storage: you just need a Dropbox folder.</p>
-      </div>
+      <div class="featurette-holder" id="block3">
+        <div class="featurette">
+          <img class="featurette-image img-circle img-responsive pull-right" src="http://www.techbarber.com/wp-content/uploads/2013/01/Dropbox-Logo.png">
+          <h2 class="featurette-heading">Completely Free </br><span class="text-muted" id="desc3">No Need To Pay For Server Space</span></h2>
+          <p class="lead">We serve your site directly from your Dropbox, without storing your files on our server. This means that you don't have to pay for storage: you just need a Dropbox folder.</p>
+        </div>
+      </div> -->
 
       <!-- /END THE FEATURETTES -->
 
-      <hr>
 
       <!-- FOOTER -->
-      <footer>
+      <!-- <footer>
         <p>
           Copyright &copy; Company 2013 &middot; Facebook &middot; Twitter &middot; Google+
         </p>
-      </footer>
+      </footer> -->
       <!-- /END OF FOOTER -->
 
     </div><!-- /container -->
@@ -100,4 +82,8 @@
 
   </body>
 
+  <script>
+    $('.featurette-holder').height(window.innerHeight);
+    $('.launch-header').height(window.innerHeight);
+  </script>
 </html>
