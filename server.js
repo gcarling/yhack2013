@@ -482,9 +482,9 @@ function errorHandler(err, req, res, next) {
  */
 
 app.post("/addManage", function(req, res) {
-	console.log("getting called");
     var user_id = req.session.user_id;
-    var currPaths = req.body.pathnames
+    var currPaths = req.body.pathnames;
+    console.log(currPaths);
     request.post('https://api.dropbox.com/1/account/info', {
 	headers: {Authorization: 'Bearer ' + user_id}},
 	function(err, response,  idData) {
