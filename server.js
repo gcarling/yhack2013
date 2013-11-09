@@ -84,6 +84,13 @@ var nameSchema = new Schema({
     token: String});
 var NameSchemaModel = mongoose.model("nameSchema", siteListSchema);
 
+app.post("/deletion", function(req, res) {
+    NameSchemaModel.findOne({"name": res.body.name}, function(err, data) {
+	data.remove();
+    });
+    
+    
+}
 
 app.post('/createcallback', function(req, res) {
   var newfolder = req.body.sitename;
@@ -116,6 +123,24 @@ app.post('/createcallback', function(req, res) {
 			filePath: "/" + newfolder,
 			token: token});
 		    newNameSchema.save();
+		    request.get('https://api.dropbox.com/1/account/info', {
+			headers: { Authorization: 'Bearer ' + token}},
+			function(error, response, body) {
+			    if(error) {throw error}
+			    SiteListModel.findOne({"dropid": JSON.parse(body).uid},
+				function(err, id) {
+				    if(err) {throw err}
+				    if(id) {
+					id.siteList.push(newfolder);
+				    }
+				    else {
+					var newList = new SiteListModel({
+					    dropid: JSON.parse(body).uid,
+					    siteList: [newfolder]});
+					newList.save();
+				    }
+				});
+			});
 		    res.redirect("./manage");
 		    
 		});
@@ -180,7 +205,7 @@ app.get('/callback', function (req, res) {
                 var token = data.access_token;
                 addUserToDB(token, "name", unique_pid);
                 // use the bearer token to make API calls
-	        request.get('https://api.dropbox.com/1/account/info', {},
+	        request.get('https://api.dropbox.com/1/account/info', {headers: { Authorization: 'Bearer ' + token}},
 			    function(error, response, body) {
 				getRedirect(JSON.parse(body).uid);
 			    });
