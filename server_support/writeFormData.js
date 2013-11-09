@@ -1,8 +1,10 @@
 var fs = require("fs");
 app.use(express.bodyParser());
+//need to take as input the filepath
+//in req.body
 app.get("/post/", function(req, res) {
-    getFilePath()****  //need to write getFilePath
-    //which returns the path to the file where the data should be written
+    var userid = req.session.user_id;
+    
     
     for(input in req.body) {
 
