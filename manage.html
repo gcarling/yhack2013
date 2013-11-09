@@ -18,11 +18,11 @@
     <img src="images/launchdrop_logo_small.png" class="logo"/><br/>
     <h1>Your Sites</h1>
     <div class="site-list">
-      **PARSE HERE**
-      <!-- <button class="btn btn-primary a-site">Test 1</button><button class="btn btn-primary delete">Delete</button></br>
-      <button class="btn btn-primary a-site">Another Test</button><button class="btn btn-primary delete">Delete</button></br> -->
+      <!-- **PARSE HERE** -->
+      <button class="btn btn-primary a-site" id="site1">Test 1 - ~/test</button><button class="btn btn-primary delete" id="delete1">Delete</button></br>
+      <button class="btn btn-primary a-site" id="site2">Another Test - /course/test</button><button class="btn btn-primary delete" id="delete2">Delete</button></br>
     </div>
-    <button class="btn btn-primary add-site">Launch a new Site</button>
+    <button class="btn btn-primary add-site">Launch Another Site</button>
   
   <!-- scripts -->
   <script src="js/jquery.js"></script>
@@ -32,14 +32,52 @@
 
   <script>
 
-    $(".delete").click(function() {
-      window.location = "./dropbox"
+    $(".delete").click(function(event) {
+      var num = event.target.id.substring(6);
+      var id = "site" + num;
+      var content = $("#" + id);
+      var text = content.text()
+      var parsed = text.split(" - ");
+      var name = parsed[0];
+      var filepath = parsed[1];
+      console.log(name +"-"+filepath);
+      $.post("deletion", {filename: name}, function(data){
+          if (data === "-1") {
+            alert("There was an error, please try again.");
+          }
+          else {
+            location.reload();
+          }
+      });
+    });
+
+    $(".a-site").click(function(event) {
+      var info = $("#" + event.target.id).text();
+      var parsed = info.split(" - ");
+      var name = parsed[0];
+      var url = "./site/" + name;
+      window.location = url;
     });
 
     $(".add-site").click(function() {
-
+      var allsites = $(".a-site");
+      for (var i = 0; i < allsites.length; i++){
+        allsites[i] = allsites[i].innerText;
+      }
+      for (var i = 0; i < allsites.length; i++){
+        parsed = allsites[i].split(" - ");
+        allsites[i] = parsed[1];
+      }      
+      $.post("addManage", {pathnames : allsites}, function(data){
+        if (data === "-1"){
+          alert("There was an error, please try again.");
+        }
+        else{
+          location.reload();
+        }
+      });
+    });
     }});
-
 
   </script>
 </html>
