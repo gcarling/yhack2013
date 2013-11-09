@@ -555,7 +555,7 @@ app.post("/whichCreate", function (req, res) {
                                     console.log("About to save 1");
                                     siteListModelData.save(function (err) {
                                         if (err) throw err;
-                                         res.redirect("../site/" + sitename);
+                                         res.redirect("../manage");
                                     });
                                 }
                                 else {
@@ -569,7 +569,7 @@ app.post("/whichCreate", function (req, res) {
                                     console.log(siteListModel);
                                     siteListModel.save(function (err) {
                                         if (err) throw err;
-                                         res.redirect("../site/" + sitename);
+                                         res.redirect("../manage");
                                     });
                                 }
                             });

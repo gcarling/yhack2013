@@ -43,7 +43,7 @@
           </ul>
         </div>
       </div>
-      
+      <button class="btn btn-primary" id="create-site">Create a Site</button>
     </div>
     <!-- Modal -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" 
@@ -75,6 +75,10 @@
     $(".list-group-item").click(function (obj) {
         var currentBreadcrumb = obj.currentTarget.innerText;
         $("#path").val(deBread(currentBreadcrumb));
+    });
+
+    $("#create-site").click(function() {
+      window.location = "create.html";
     });
 
     function deBread(bread) {
