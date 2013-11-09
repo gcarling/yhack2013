@@ -226,6 +226,34 @@ function errorHandler(err, req, res, next) {
  * HTML ASSEMBLING aka we should really use a templating language
  */
 
+app.get("/whichtest", function (req, res) {
+    res.send(whichSites(["/bin/sleep", "/course/cs033/hi"]));
+});
+
 function whichSites(paths) {
-    
+    var html = fs.readFileSync("which.html", "utf8");
+    var parsed = html.split("**PARSE HERE**");
+    var built = parsed[0];
+    for (var i = 0; i < paths.length; i++) {
+        built += "<a href='#'><li class='list-group-item'>" 
+            + breadcrumbed(paths[i]) + "</li></a>";
+    }
+    built += parsed[1];
+    return built;
+}
+
+function breadcrumbed(str) {
+    var breadcrumb = "";
+    for (var i = 0; i < str.length; i++) {
+        var character = str.substring(i,i+1);
+        if (character == '/') {
+            if (i != 0) {
+                breadcrumb += " > ";
+            }
+        }
+        else {
+            breadcrumb += character;
+        }
+    }
+    return breadcrumb;
 }
