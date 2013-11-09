@@ -51,7 +51,7 @@ function generateRedirectURI(req) {
         });
 }
 
-app.get('/db', function (req, res) {
+app.get('/dropbox', function (req, res) {
         var csrfToken = generateCSRFToken();
         res.cookie('csrf', csrfToken);
         res.redirect(url.format({
