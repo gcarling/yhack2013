@@ -7,7 +7,8 @@ var request = require('request');
 var url = require('url');
 var mongoose = require("mongoose");
 
-var mongoURI = "ate something";
+var mongoURI = "mongodb://Launch:Drop@paulo.mongohq.com:10045/LaunchDrop";
+mongoose.connect(mongoURI);
 
 var userSchema = new Schema({
     uniqueid: String,
@@ -122,13 +123,15 @@ app.get('/callback', function (req, res) {
 
                 // extract bearer token
                 var token = data.access_token;
+                addUserToDB(token, "name", unique_pid);
                 // use the bearer token to make API calls
                 request.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
                         list : true,
                         file_limit:25000,
                         headers: { Authorization: 'Bearer ' + token }
                 }, function (error, response, body) {
-                        res.send('Logged in successfully as ' + body + JSON.parse(body).display_name + '.');
+                        res.send('Logged in successfully as ' + 
+                            body + JSON.parse(body).display_name + '.');
                 });
         });
 });
@@ -140,10 +143,6 @@ function addUserToDB(token, name, uniqueid) {
         dtoken: token
     });
     newuser.save();
-}
-
-function getUser(uniqueId) {
-    return User.findone({"uniqueid" : uniqueId).dtoken;
 }
 
 var privateKey = fs.readFileSync("ssl/gabes-key.pem", "utf8");
