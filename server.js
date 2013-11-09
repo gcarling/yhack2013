@@ -15,7 +15,8 @@ var nameSchema = new mongoose.Schema({
     name: String,//siteName --- NOT the path
     filePath: String,
     dropid: String,
-    token: String});
+    token: String
+});
 
 var userSchema = new mongoose.Schema({
     uniqueid: String,
@@ -33,9 +34,9 @@ var siteListSchema = new mongoose.Schema({
     siteList: [site]
 });
 
+var NameSchemaModel = mongoose.model("nameSchema", nameSchema);
 var SiteListModel = mongoose.model("siteList", siteListSchema);
 var User = mongoose.model("user", userSchema);
-var NameSchemaModel = mongoose.model("nameSchema", siteListSchema);
 
 // Init express
 var app = express();
@@ -138,7 +139,7 @@ app.get('/manage',  function(req, res) {
 app.get("/site/*", function(req, res) {
   var url = req.url; 
   // cuts off the /s/
-  var filepath = url.substring(3);
+  var filepath = url.substring("/site/".length);
   // gets the sitename (at the beginning of the filepath)
   var sitename = filepath.split("/")[0];
   // gets the real filepath, after sitename
@@ -146,7 +147,9 @@ app.get("/site/*", function(req, res) {
   if(realfilepath === "/" || realfilepath === "") {
     realfilepath = "/index.html";
   }
+  console.log(sitename)
   NameSchemaModel.findOne({name : sitename}, function(err, blob) {
+    console.log(blob);
     var headpath = blob.filePath;
     var access_token = blob.token;
     request.get('https://api-content.dropbox.com/1/files/dropbox' + headpath + realfilepath, {
