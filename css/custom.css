@@ -25,8 +25,32 @@
 	font-family: "bebas_neue", Verdana, Tahoma;
 	font-size: 40px;
 	text-align: center;
+	margin-bottom: 20px;
 	padding-top: 2px;
 }
+.featureBullets{
+    text-align:left;
+//    padding-left:2;
+}
+
+.launch{
+	background-color: #E33022;
+	border-color: #E33022;
+}
+
+.launch:hover{
+	background-color: #BC0E00;
+	border-color: #BC0E00;
+}
+
+.launch:focus{
+	background-color: #E33022;
+	border-color: #E33022;
+}
+
+.read-more{
+}
+
 .headline {
 	padding: 0px 0;
 }
@@ -57,16 +81,14 @@ body > .container{
 	display: block;
 }
 
-.featurette-divider {
-	margin: 80px 0;
-	border-top: 1px solid #0D0B6A;
-}
 .featurette {
 	overflow: hidden; 
 	width: 90%;
+	height: 100%;
 	padding-top: 5%;
 	display: block;
 	margin: auto;
+	text-align: center;
 }
 
 .featurette-image.pull-left {
@@ -90,37 +112,23 @@ body > .container{
 
 .featurette-image{
 	height: 50%;
+	/*width: 450px;*/
 	float: center;
 	margin: 0 auto;
 	display: block;
+
 }
 
-#block1{
+#desc-box{
 	background-color: #85BACE;
 }
 
-#block2{
-	background-color: #FF9F40;
-}
-
-#block3{
-	background-color: #eeeeee;
-}
-
-#desc1{
+#desc{
 	color: #ffffff;
 }
 
-#desc2{
-	color: #ffffff;
-}
-
-#desc3{
-
-}
-
-footer {
-	margin: 50px 0;
+.feature-list{
+	text-align: center;
 }
 
 /* RESPONSIVE CSS */
