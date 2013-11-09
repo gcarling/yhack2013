@@ -230,13 +230,7 @@ app.get('/callback', function (req, res) {
                 // extract bearer token
                 var token = data.access_token;
                 addUserToDB(token, "name", unique_pid);
-<<<<<<< HEAD
-                // use the bearer token to make API calls
-	        request.get('https://api.dropbox.com/1/account/info', {headers: { Authorization: 'Bearer ' + token}},
-			    function(error, response, body) {
-				getRedirect(JSON.parse(body).uid);
-=======
-
+                
                 // use token to get dropid and redirect to which, create
                 request.get('https://api.dropbox.com/1/account/info', 
                         {
@@ -244,7 +238,6 @@ app.get('/callback', function (req, res) {
                         },
                     function(error, response, body) {
                         getRedirect(JSON.parse(body).uid, unique_id, token);
->>>>>>> ccdc7ee0c3c26b158cf7a13b6898dff06c721c57
 			    });
         });
 });
