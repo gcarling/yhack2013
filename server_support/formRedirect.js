@@ -12,8 +12,6 @@ function formRedirect(html) {
 	html = replaceFormInfo(html, ind, htmlParseHelp);
 	ind+=1;
 	htmlParseHelp = html.substring(ind);
-	console.log(ind);
-	console.log(htmlParseHelp.substring(0, 50));
     }
     return html;
 }
@@ -56,7 +54,10 @@ function replaceFirstForm(htmlParseHelp) {
     return htmlBeginning + "\"" + "/post/" + "\"" + htmlAfterAction + hiddenElement + htmlRest;
 }
 function test() {
-    var html = fs.readFileSync("sampleHtmlForms.html");
-    fs.writeFileSync("formsOutput.html", formRedirect(html));
+    fs.readFile("sampleHtmlForms.html",
+	function(err, data) {
+	    fs.writeFile("formsOutput.html", formRedirect(html),
+		function(err) {})
+	});
 }
 test();
