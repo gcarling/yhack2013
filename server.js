@@ -274,8 +274,14 @@ app.post('/createcallback', function(req, res) {
                                         dropid: parsed.uid,
                                         token: access_token
                                         });
+                                        dumpurl = 'https://api-content.dropbox.com/1/files_put/dropbox/' + newfolder + '/index.html';
+                                        request.post(dumpurl, {
+                                          body: "<html> hello world! </html>",
+                                          headers: { Authorization: 'Bearer ' + access_token}},
+                                          function(er, re, bo) {
                                         newNameSchema.save(function (err) {
                                              res.redirect("../manage");
+                                        });
                                         });
                                     });
                                 }
@@ -294,8 +300,14 @@ app.post('/createcallback', function(req, res) {
                                         dropid: parsed.uid,
                                         token: access_token
                                         });
+                                        dumpurl = 'https://api-content.dropbox.com/1/files_put/dropbox/' + newfolder + '/index.html';
+                                        request.post(dumpurl, {
+                                          body: "<html> hello world! </html>",
+                                          headers: { Authorization: 'Bearer ' + access_token}},
+                                          function(er, re, bo) {
                                         newNameSchema.save(function (err) {
                                              res.redirect("../manage");
+                                        });
                                         });
                                     });
                                 }
