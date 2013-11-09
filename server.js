@@ -233,7 +233,7 @@ app.post('/createcallback', function(req, res) {
                 throw error;
                 res.redirect("./createone");
                 }
-		request.post("https://api-content.dropbox.com/1/files_put/dropbox/" +
+		request.post("https://api-content.dropbox.com/1/files_put?root=dropbox&path=/" +
 			     newfolder + "/index.html?param=val", {}, 
 		    function(err2, response2, body2) {
 			if(err2) {throw err2;}
