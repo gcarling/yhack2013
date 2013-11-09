@@ -98,7 +98,7 @@ function generateManage(user_sites){
   start = parsed[0];
   end = parsed[1];
   var build;
-  for (var i = 0; i < users_sites.length; i++){
+  for (var i = 0; i < user_sites.length; i++){
     build += "<button class='btn btn-primary a-site' id='site";
     build += i;
     build += "'>";
@@ -122,8 +122,7 @@ app.get('/manage',  function(req, res) {
         headers: { Authorization: 'Bearer ' + access_token}},
         function(error, response, body) {
         if(error) {throw error}
-        dropid = body.uid;
-        console.log(dropid);
+        dropid = JSON.parse(body).uid;
         SiteListModel.findOne({dropid : dropid}, function(err, siteList) {
           returnhtml = generateManage(siteList.siteList);
           res.send(returnhtml);            
