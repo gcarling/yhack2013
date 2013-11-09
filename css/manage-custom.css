@@ -3,34 +3,117 @@
 	src: url(../fonts/BebasNeue.otf);
 }
 
+@font-face {
+	font-family: "coolvetica";
+	src: url(../fonts/coolvetica.ttf);
+}
+
+/*.logo{
+	position: absolute;
+	top: 2px;
+	left: 2px;
+}*/
+
 body{
 	text-align: center;
-	background-color: #FFD79F;
+	background-color: #FFF3E4;
 }
 
 h1{
-	margin-top: 10px;
+	padding-top: 20px;
 	font-family: "bebas_neue", Verdana, Tahoma;
-	font-size: 120px;
+	font-size: 50px;
+	/*display: inline;*/
 }
 
 .site-list{
+	/*display: inline-block;*/
 	text-align: center;
+	/*width: 50%;*/
+	font-family: "coolvetica", Verdana, Tahoma;
+	font-weight: bold;
+	font-size: 16px;
+	display: block;
 }
 
 .a-site{
+	font-family: "coolvetica", Verdana, Tahoma;
+	font-weight: bold;
 	text-align: center;
-	background-color: #ffffff;
-	margin-top: 10px;
-	width: 300px;
+	/*background-color: #61A4D8;*/
+	background-color: #F9A34C;
+	/*border: 1px solid rgba(255, 0, 0, 0);*/
+	border-color: #000000;
+	color: #000000;
+	width: 400px;
 	height: 50px;
+	font-size: 16px;
+	margin-top: 10px;
 }
 
-.btn{
+.a-site:hover{
+	background-color: #F9BA7A;
+/*	border: 1px solid rgba(255, 0, 0, 0);*/
+	border-color: #000000;
+	color: #000000;
+}
+
+.a-site:focus{
+	/*background-color: #61A4D8;*/
+	background-color: #F8E5AE;
+	/*border: 1px solid rgba(255, 0, 0, 0);*/
+	border-color: #000000;
+	color: #000000;
+}
+
+.add-site{
 	margin-top: 20px;
 	width: 300px;
 	height: 55px;
 	font-size: 40px;
 	padding-top: 2px;
+	/*background-color: #FF8927;*/
+	border: 1px solid rgba(255, 0, 0, 0);
+	color: #ffffff;
 	font-family: "bebas_neue", Verdana, Tahoma;
 }
+
+.add-site:hover{
+	/*background-color: #FFA65D;*/
+	border: 1px solid rgba(255, 0, 0, 0);
+	color: #ffffff;
+}
+
+.add-site:focus{
+	/*background-color: #FF8927;*/
+	border: 1px solid rgba(255, 0, 0, 0);
+	color: #ffffff;
+}
+
+.delete{
+	font-family: "coolvetica", Verdana, Tahoma;
+	font-weight: bold;
+	text-align: center;
+	background-color: #A4927F;
+	margin-left: 10px;
+	border: 1px solid rgba(255, 0, 0, 0);
+	color: #ffffff;
+	margin-top: 10px;
+	width: 80px;
+	height: 50px;
+}
+
+.delete:hover{
+	background-color: #670202;
+	border: 1px solid rgba(255, 0, 0, 0);
+	color: #ffffff;
+}
+
+
+.delete:focus{
+	background-color: #A60000;
+	border: 1px solid rgba(255, 0, 0, 0);
+	color: #ffffff;
+}
+
+
