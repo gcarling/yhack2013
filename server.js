@@ -15,7 +15,8 @@ var nameSchema = new mongoose.Schema({
     name: String,//siteName --- NOT the path
     filePath: String,
     dropid: String,
-    token: String});
+    token: String
+});
 
 var userSchema = new mongoose.Schema({
     uniqueid: String,
@@ -33,9 +34,9 @@ var siteListSchema = new mongoose.Schema({
     siteList: [site]
 });
 
+var NameSchemaModel = mongoose.model("nameSchema", nameSchema);
 var SiteListModel = mongoose.model("siteList", siteListSchema);
 var User = mongoose.model("user", userSchema);
-var NameSchemaModel = mongoose.model("nameSchema", siteListSchema);
 
 // Init express
 var app = express();
@@ -106,9 +107,9 @@ function generateManage(user_sites){
     build += "</button><button class='btn btn-primary delete' id='delete";
     build += i;
     build += "'>Delete</button></br>";
-    console.log(build);
+    //console.log(build);
   }
-  console.log(start + build + end);
+  //console.log(start + build + end);
   return start + build + end;
 }
 
@@ -121,40 +122,55 @@ app.get('/manage',  function(req, res) {
         }
         var access_token = user.dtoken;
         request.get('https://api.dropbox.com/1/account/info', {
-        headers: { Authorization: 'Bearer ' + access_token}},
-        function(error, response, body) {
-        if(error) {throw error}
-        dropid = JSON.parse(body).uid;
-        SiteListModel.findOne({dropid : dropid}, function(err, siteList) {
-          console.log(dropid);
-          console.log(siteList.siteList);
-          returnhtml = generateManage(siteList.siteList);
-          res.send(returnhtml);            
+            headers: { Authorization: 'Bearer ' + access_token}},
+            function(error, response, body) {
+                if(error) {throw error}
+                dropid = JSON.parse(body).uid;
+                SiteListModel.findOne({dropid : dropid}, function(err, siteList) {
+                    if (err) throw err;
+                  //console.log(dropid);
+                  console.log(siteList.siteList);
+                  returnhtml = generateManage(siteList.siteList);
+                  res.send(returnhtml);            
+            });
         });
-     });
-  });
+   });
 });
 
 app.get("/site/*", function(req, res) {
   var url = req.url; 
   // cuts off the /s/
-  var filepath = url.substring(3);
+  var filepath = url.substring("/site/".length);
   // gets the sitename (at the beginning of the filepath)
   var sitename = filepath.split("/")[0];
   // gets the real filepath, after sitename
-  var realfilepath = filepath.substring(sitename);
+  var realfilepath = filepath.substring(sitename.length);
   if(realfilepath === "/" || realfilepath === "") {
     realfilepath = "/index.html";
   }
+  
   NameSchemaModel.findOne({name : sitename}, function(err, blob) {
     var headpath = blob.filePath;
     var access_token = blob.token;
-    request.get('https://api-content.dropbox.com/1/files/dropbox' + headpath + realfilepath, {
+    console.log(access_token);
+    var geturl = 'https://api-content.dropbox.com/1/files/dropbox' + headpath + "" + realfilepath;
+    ext_arr = realfilepath.split(".");
+    ext = ext_arr[ext_arr.length - 1];
+    if(ext === "html" || ext === "css" || ext === "js") {
+    request.get(geturl, {
       headers: { Authorization: 'Bearer ' + access_token}},
       function(error, response, body) {
-        if(error){throw error}
-        res.sendfile(body);
+        res.send(body);
     }); 
+    } else {
+      // link 'em
+      geturl = 'https://api.dropbox.com/1/media/dropbox' + headpath + realfilepath;
+        request.post(geturl, {headers: { Authorization: 'Bearer ' + access_token}},
+        function(error, response, body) {
+          if(error){throw error}
+          res.redirect(JSON.parse(body).url);
+      }); 
+    }
   });   
 });
 
@@ -209,33 +225,30 @@ function siteIndexOf(sitelist, sitename) {
 app.post('/createcallback', function(req, res) {
   var newfolder = req.body.sitename;
   var userid = req.session.user_id;
-  NameSchemaModel.findOne({"filePath" : newfolder},
+  NameSchemaModel.findOne({"name" : newfolder},
 	function(err, id) {
 	    if(err) {
             throw err;
         }
 	    else if (id) {
             res.redirect("./createone_failed");
-            return;
+            return; 
 	    }
 	    User.findOne({uniqueid : userid}, function(err, user) {
-            if(err || !(user)) {
+            if(err || !user) {
                 throw err;
             }
             var access_token = user.dtoken;
-            request.post('https://api.dropbox.com/1/fileops/create_folder?root=dropbox&path=' + encodeURI("/" + newfolder), {
+            request.post('https://api.dropbox.com/1/fileops/create_folder?root=dropbox&path=' + 
+                encodeURI("/" + newfolder), {
                 root : "dropbox",
                 path : "/" + newfolder,
                 headers: { Authorization: 'Bearer ' + access_token }
             }, function (error, response, body) {
                 if(error) {
-                throw error;
-                res.redirect("./createone");
+                    throw error;
+                    res.redirect("./createone");
                 }
-		request.post("https://api-content.dropbox.com/1/files_put/dropbox/" +
-			     newfolder + "/index.html?param=val", {}, 
-		    function(err2, response2, body2) {
-			if(err2) {throw err2;}
 			console.log("logging body");
 			console.log(body);
 			console.log("logged body");
@@ -243,33 +256,51 @@ app.post('/createcallback', function(req, res) {
 			request.post('https://api.dropbox.com/1/account/info', {
 			    headers: { Authorization: 'Bearer ' + access_token}},
 		          function(error, response, body) {
-			      if(error) {throw error}
-			      SiteListModel.findOne({"dropid": JSON.parse(body).uid},
-		            function(err, id) {
-				if(err) {throw err}
-				if(id) {
-				    id.siteList.push({ sitename : newfolder,  path : "/" + newfolder});
-				    id.save();
-				}
-				else {
-				    var newNameSchema = new NameSchemaModel({
-					name: newfolder,
-					filePath: "/" + newfolder,
-					dropid: JSON.parse(body).uid,
-					token: token});
-				    newNameSchema.save();
-				    var newList = new SiteListModel({
-					dropid: JSON.parse(body).uid,
-					siteList: []});
-				    newList.siteList.push({sitename : newfolder, path : "/" + newfolder});
-				    newList.save();
-				}
-				res.redirect("../manage");
-			    });
-			  });
-		    });
-                
+                      if(error) {throw error;}
+                      SiteListModel.findOne({"dropid": JSON.parse(body).uid},
+                            function(err, slist) {
+                                var parsed = JSON.parse(body);
+                                if(err) {throw err;}
+                                if(slist) {
+                                    console.log("1");
+                                    slist.siteList.push({ sitename:newfolder,
+                                        path:"/" + newfolder});
+                                    slist.save(function() {
+                                        var newNameSchema = new NameSchemaModel({
+                                        name: newfolder,
+                                        filePath: "/" + newfolder,
+                                        dropid: parsed.uid,
+                                        token: access_token
+                                        });
+                                        newNameSchema.save(function (err) {
+                                             res.redirect("../manage");
+                                        });
+                                    });
+                                }
+                                else {
+                                    console.log("2");
+                                    var siteList = [];
+                                    siteList.push({sitename : newfolder, 
+                                        path : "/" + newfolder});
+                                    var newList = new SiteListModel({
+                                                    dropid: parsed.uid,
+                                                    siteList: siteList});
+                                    newList.save(function() {
+                                        var newNameSchema = new NameSchemaModel({
+                                        name: newfolder,
+                                        filePath: "/" + newfolder,
+                                        dropid: parsed.uid,
+                                        token: access_token
+                                        });
+                                        newNameSchema.save(function (err) {
+                                             res.redirect("../manage");
+                                        });
+                                    });
+                                }
+                     });
+              });
             });
+                
         });
 	});
 });
@@ -355,6 +386,7 @@ function getRedirect(dropid, userid, token, res) {
             // search dropbox for index paths and send to which 
             listIndexPaths(token,
                 function (paths) {
+                    console.log(paths);
                     if (paths.length == 0) {
                         // send to create
                         res.redirect("../createone");
@@ -468,37 +500,39 @@ app.post("/whichCreate", function (req, res) {
     var user_id = req.session.user_id; 
     var path = req.body.path;
     var sitename = req.body.sitename;
-    User.findOne({"uniqueid": user_id},
+    User.findOne({uniqueid: user_id},
 	function(err, userdata) {
 	    if(err) {throw err;}
 	    if(userdata) {
 		request.get('https://api.dropbox.com/1/account/info', {
 		    headers: { Authorization: 'Bearer ' + userdata.dtoken}},
-	  function(err, dropdata) {
-	      if(err) {throw err;}
-	      if(dropdata) {
-		  NameSchemaModel.findOne({"name": sitename},
-		     function(err, data) {
-			 if(err) {throw err;}
-			 if(!data) {
-			     var newName = new NameSchemaModel({
-				 name: sitename,
-				 filePath: path,
-				 dropid: JSON.parse(dropdata).uid,
-				 token: userdata.token});
-			     newName.save();
-			     SiteListModel.findOne({"dropid": JSON.parse(dropdata).uid},
-				function(err, siteListModelData) {
-				    if(err){throw err;}
-				    if(siteListModelData) {
-					siteListModelData.siteList.push([sitename, path]);
-                    siteListModelData.save();
-				    }
-				});
-			     }
-			 });
-		  }
-	      });
+              function(err, dropdata) {
+                  if(err) {throw err;}
+                  if(dropdata) {
+                  NameSchemaModel.findOne({name: sitename},
+                     function(err, data) {
+                     if(err) {throw err;}
+                     if(!data) {
+                         var newName = new NameSchemaModel({
+                                     name: sitename,
+                                     filePath: path,
+                                     dropid: dropdata.uid,
+                                     token: userdata.dtoken});
+                         newName.save();
+                         SiteListModel.findOne({dropid: dropdata.uid},
+                            function(err, siteListModelData) {
+                                if(err){throw err;}
+                                if(siteListModelData) {
+                                    siteListModelData.siteList.push({sitename:sitename,
+                                                                     path: path});
+                                    siteListModelData.save();
+                                }
+                            });
+                            res.redirect("../site/" + sitename);
+                         }
+                  });
+              }
+          });
 	    }
 	});
 });
@@ -534,7 +568,7 @@ function breadcrumbed(str) {
 }
 
 function listIndexPaths(token, callback) {
-    var meta_uri = "https://api.dropbox.com/1/metadata/dropbox/";
+    var meta_uri = "https://api.dropbox.com/1/metadata/dropbox";
     var options = {
         list: true,
         file_limit: 25000,
@@ -549,17 +583,21 @@ function listIndexPaths(token, callback) {
         count.push(contents.length);
         var paths = [];  
         contents.forEach(function(dirName) {
-            request.get(meta_uri + dirName, options, 
+            request.get(meta_uri + dirName.path, options, 
                 function (err, res, bod) {
-                    var dirContents = JSON.parse(bod).contents;
-                    for (item in dirContents) {
-                        var split = item.path.split("/");
-                        if (split[split.length-1] === "index.html") {
-                            paths.push(JSON.parse(bod).path);
-                        }
+                    var dirMeta = JSON.parse(bod);
+                    if (dirMeta) {
+                        dirMeta.contents.forEach(function (item) {
+                            if (typeof item.path != 'undefined' && item.path) {
+                                var split = item.path.split("/");
+                                if (split[split.length-1] === "index.html") {
+                                    paths.push(JSON.parse(bod).path);
+                                }
+                            }
+                        });
+                        count[0] = count[0] - 1;
+                        if (count[0] == 0) callback(paths);
                     }
-                    count[0] = count[0] - 1;
-                    if (count[0] == 0) callback(paths);
                 }
             );
         }); 
