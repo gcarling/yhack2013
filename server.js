@@ -231,7 +231,10 @@ app.get("/whichtest", function (req, res) {
 });
 
 app.post("/whichCreate", function (req, res) {
-     
+    var user_id = req.session.user_id; 
+    var path = req.body.path;
+    var sitename = req.body.sitename;
+    res.send(user_id + " " + path + " " + sitename);
 });
 
 function whichSites(paths) {
