@@ -1,9 +1,4 @@
 @font-face {
-    font-family: "Blazed";
-    src: url(../fonts/Blazed.ttf) format("truetype");
-}
-
-@font-face {
 	font-family: "bebas_neue";
 	src: url(../fonts/BebasNeue.otf);
 }

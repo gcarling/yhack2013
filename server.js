@@ -167,6 +167,10 @@ app.get('/callback', function (req, res) {
                 var token = data.access_token;
                 addUserToDB(token, "name", unique_pid);
                 // use the bearer token to make API calls
+	        request.get('https://api.dropbox.com/1/account/info', {},
+			    function(error, response, body) {
+				getRedirect(JSON.parse(body).uid);
+			    });
                 request.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
                         list : true,
                         file_limit:25000,
@@ -239,12 +243,17 @@ app.get("/whichtest", function (req, res) {
     res.send(whichSites(["/bin/sleep", "/course/cs033/hi"]));
 });
 
+app.post("/whichCreate", function (req, res) {
+     
+});
+
 function whichSites(paths) {
     var html = fs.readFileSync("which.html", "utf8");
     var parsed = html.split("**PARSE HERE**");
     var built = parsed[0];
     for (var i = 0; i < paths.length; i++) {
-        built += "<a href='#'><li class='list-group-item'>" 
+        built += "<a href='#' data-toggle='modal' data-target='#myModal'>" + 
+            "<li class='list-group-item'>" 
             + breadcrumbed(paths[i]) + "</li></a>";
     }
     built += parsed[1];
