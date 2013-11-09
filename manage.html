@@ -22,23 +22,34 @@
       <button class="btn btn-primary a-site">Another Test</button><button class="btn btn-primary delete">Delete</button></br>
     </div>
     <button class="btn btn-primary add-site">Launch a new Site</button>
+  
+  <!-- scripts -->
+  <script src="js/jquery.js"></script>
+  <script src="js/bootstrap.js"></script>
+
   </body>
 
   <script>
 
-  function(names, filepaths){
-    start = "<!DOCTYPE html....<div class=site-list>"
-    end = "</div...</html>"
-    var build;
-    for (var i = 0; i < names.length; i++){
-      build += "<button class='btn btn-primary a-site'>";
-      build += names[i] + " - " + filespaths[i];
-      build += "</button><button class='btn btn-primary delete'>Delete</button></br>";
-    }
-    return start + build + end;
-  }
+    $(".delete").click(function() {
+      window.location = "./dropbox"
+    });
 
+    $(".add-site").click(function() {
+      
+    }});
 
+  // function(names, filepaths){
+  //   start = "<!DOCTYPE html....<div class=site-list>"
+  //   end = "</div...</html>"
+  //   var build;
+  //   for (var i = 0; i < names.length; i++){
+  //     build += "<button class='btn btn-primary a-site'>";
+  //     build += names[i] + " - " + filespaths[i];
+  //     build += "</button><button class='btn btn-primary delete'>Delete</button></br>";
+  //   }
+  //   return start + build + end;
+  // }
 
   </script>
 </html>
