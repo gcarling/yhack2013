@@ -129,7 +129,7 @@ app.get('/manage',  function(req, res) {
                 dropid = JSON.parse(body).uid;
                 SiteListModel.findOne({dropid : dropid}, function(err, siteList) {
                     if (err) throw err;
-                  console.log(dropid);
+                  //console.log(dropid);
                   console.log(siteList.siteList);
                   returnhtml = generateManage(siteList.siteList);
                   res.send(returnhtml);            
