@@ -150,7 +150,7 @@ app.post("/deletion", function(req, res) {
 });
 
 function deleteSiteEntry(dropid, filename) {
-    NameSchemaModel.findOne({"dropid": dropid, "name": name},
+    NameSchemaModel.findOne({"dropid": dropid, "name": filename},
 	function(err, data) {
 	    if(err) {throw err;}
 	    data.remove()});
