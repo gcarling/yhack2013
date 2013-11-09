@@ -87,6 +87,25 @@ app.get('/createone/:used', function(req, res) {
   }
 });
 
+
+function generateManage(user_sites){
+  var html = fs.readFileSync("manage.html", "utf8");
+  var parsed = html.split("**PARSE HERE**");
+  start = parsed[0];
+  end = parsed[1];
+  var build;
+  for (var i = 0; i < users_sites.length; i++){
+    build += "<button class='btn btn-primary a-site' id='site";
+    build += i;
+    build += "'>";
+    build += user_sites[i].name + " - " + user_sites[i].filepath;
+    build += "</button><button class='btn btn-primary delete' id='delete";
+    build += i;
+    build += "'>Delete</button></br>";
+  }
+  return start + build + end;
+}
+
 app.get('/manage',  function(req, res) {
   var userid = req.session.user_id;
   
