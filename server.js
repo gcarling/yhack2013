@@ -387,7 +387,36 @@ function errorHandler(err, req, res, next) {
  * HTML ASSEMBLING aka we should really use a templating language
  */
 
-
+app.post("/addManage", function(req, res) {
+    var user_id = req.session.user_id;
+    var currPaths = req.body.pathnames
+    request.get('https://api.dropbox.com/1/account/info', {
+	headers: {Authorization: 'Bearer ' + user_id}},
+	function(err, idData) {
+	    dropid = JSON.parse(idData).uid;
+	    NameSchemaModel.findOne({"dropid": dropid},
+		function(err, tokenData) {
+		    listIndexPaths(tokenData.token, function(arr) {
+			if(arr.length != 0) {
+			    var outpaths = new Array();
+			    var count = 0;
+			    for(int i = 0; i < arr.length; i++) {
+				var found = false;
+				for(int j = 0; j < currPaths.length; j++) {
+				    if(currPaths[j] === arr[i])
+					found = true;
+				}
+				if(!found) {
+				    outpaths[count] = arr[i];
+				    count++;
+				}
+			    }
+			    
+			}
+		    });
+		});
+	});
+}
 
 app.get("/whichtest", function (req, res) {
     res.send(generateWhich(["/bin/sleep", "/course/cs033/hi"]));
@@ -431,6 +460,7 @@ app.post("/whichCreate", function (req, res) {
 	    }
 	});
 });
+
 
 function generateWhich(paths) {
     var html = fs.readFileSync("which.html", "utf8");
