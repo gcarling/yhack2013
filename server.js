@@ -1,10 +1,11 @@
 var express = require("express");
 var dropbox = require("dropbox");
 var fs = require("fs");
+var https = require("https");
 
 var privateKey = fs.readFileSync("ssl/gabes-key.pem", "utf8");
 var certificate = fs.readFileSync("ssl/gabes-cert.pem", "utf8");
-var credentials = {key: privateKey, cert: certicate};
+var credentials = {key: privateKey, cert: certificate};
 
 // Init express
 var app = express();
