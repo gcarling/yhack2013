@@ -155,7 +155,7 @@ app.get("/site/*", function(req, res) {
     console.log(access_token);
     var geturl = 'https://api-content.dropbox.com/1/files/dropbox' + headpath + "" + realfilepath;
     ext = realfilepath.split(".");
-    if(ext ==== "html" || ext === "css" || ext === "js") {
+    if(ext === "html" || ext === "css" || ext === "js") {
     request.get(geturl, {
       headers: { Authorization: 'Bearer ' + access_token}},
       function(error, response, body) {
