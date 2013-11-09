@@ -222,7 +222,7 @@ app.post('/createcallback', function(req, res) {
                 throw err;
             }
             var access_token = user.dtoken;
-            request.get('https://api.dropbox.com/1/fileops/create_folder', {
+            request.post('https://api.dropbox.com/1/fileops/create_folder?root=dropbox&path=' + encodeURI("/" + newfolder), {
                 root : "dropbox",
                 path : "/" + newfolder,
                 headers: { Authorization: 'Bearer ' + access_token }
@@ -231,8 +231,11 @@ app.post('/createcallback', function(req, res) {
                 throw error;
                 res.redirect("./createone");
                 }
+                console.log("logging body");
+                console.log(body);
+                console.log("logged body");
                 //add folder here
-                request.get('https://api.dropbox.com/1/account/info', {
+                request.post('https://api.dropbox.com/1/account/info', {
                 headers: { Authorization: 'Bearer ' + access_token}},
                 function(error, response, body) {
                     if(error) {throw error}
