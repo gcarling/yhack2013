@@ -145,14 +145,16 @@ app.get("/site/*", function(req, res) {
   var url = req.url; 
   // cuts off the /s/
   var filepath = url.substring("/site/".length);
+  console.log("here it is " + filepath);
   // gets the sitename (at the beginning of the filepath)
   var sitename = filepath.split("/")[0];
   // gets the real filepath, after sitename
   var realfilepath = filepath.substring(sitename.length);
   if(realfilepath === "/" || realfilepath === "") {
-    realfilepath = "/index.html";
+    res.redirect("./index.html");
+    return;
   }
-  
+  console.log("checka checka: " +  sitename); 
   NameSchemaModel.findOne({name : sitename}, function(err, blob) {
     var headpath = blob.filePath;
     var access_token = blob.token;
