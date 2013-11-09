@@ -10,10 +10,12 @@ var mongoose = require("mongoose");
 var mongoURI = "mongodb://Launch:Drop@paulo.mongohq.com:10045/LaunchDrop";
 mongoose.connect(mongoURI);
 
-var site = new mongoose.Schema({
-    name: String,
-    path: String
-});
+
+var nameSchema = new mongoose.Schema({
+    name: String,//siteName --- NOT the path
+    filePath: String,
+    dropid: String,
+    token: String});
 
 var userSchema = new mongoose.Schema({
     uniqueid: String,
@@ -21,13 +23,14 @@ var userSchema = new mongoose.Schema({
     dtoken: String,
 });
 
-var siteListSchema = new Schema({
+var siteListSchema = new mongoose.Schema({
     dropid: String,
     siteList: [String]
 });
 
 var SiteListModel = mongoose.model("siteList", siteListSchema);
 var User = mongoose.model("user", userSchema);
+var NameSchemaModel = mongoose.model("nameSchema", siteListSchema);
 
 // Init express
 var app = express();
@@ -83,12 +86,6 @@ app.get('/createone/:used', function(req, res) {
     res.sendfile("./createone.html");
   }
 });
-var nameSchema = new Schema({
-    name: String,//siteName --- NOT the path
-    filePath: String,
-    dropid: String,
-    token: String});
-var NameSchemaModel = mongoose.model("nameSchema", siteListSchema);
 
 app.post("/deletion", function(req, res) {
     User.findOne({"uniqueid": req.session.user_id},
@@ -102,6 +99,7 @@ app.post("/deletion", function(req, res) {
 		   });
 	});
 });
+
 function deleteSiteEntry(dropid, filename) {
     NameSchemaModel.findOne({"dropid": dropid, "name": name},
 	function(err, data) {
@@ -116,61 +114,61 @@ function deleteSiteEntry(dropid, filename) {
 	});
 }
 
-
 app.post('/createcallback', function(req, res) {
   var newfolder = req.body.sitename;
   var userid = req.session.user_id;
   NameSchemaModel.findOne({"filePath" : newfolder},
 	function(err, id) {
-	    if(err) {throw err};
-	    else if(id) {
-		res.redirect("./createone?used=true")
-		return;
+	    if(err) {
+            throw err;
+        }
+	    else if (id) {
+            res.redirect("./createone?used=true")
+            return;
 	    }
 	    User.findOne({uniqueid : userid}, function(err, user) {
-		if(err || !(user)) {
-		    throw err;
-		}
-		
-		var access_token = user.dtoken;
-		request.get('https://api.dropbox.com/1/fileops/create_folder', {
-		    root : "dropbox",
-		    path : "/" + newfolder,
-		    headers: { Authorization: 'Bearer ' + token }
-		}, function (error, response, body) {
-		    if(error) {
-			throw error;
-			res.redirect("./createone");
-		    }
-		    //add folder here
-		    request.get('https://api.dropbox.com/1/account/info', {
-			headers: { Authorization: 'Bearer ' + token}},
-			function(error, response, body) {
-			    if(error) {throw error}
-			    SiteListModel.findOne({"dropid": JSON.parse(body).uid},
-				function(err, id) {
-				    if(err) {throw err}
-				    if(id) {
-					id.siteList.push(newfolder);
-				    }
-				    else {
-					var newNameSchema = new NameSchemaModel({
-					    name: newfolder,
-					    filePath: "/" + newfolder,
-					    dropid: JSON.parse(body).uid,
-					    token: token});
-					newNameSchema.save();
-					var newList = new SiteListModel({
-					    dropid: JSON.parse(body).uid,
-					    siteList: [newfolder]});
-					newList.save();
-				    }
-				});
-			});
-		    res.redirect("./manage");
-		    
-		});
-	    });
+            if(err || !(user)) {
+                throw err;
+            }
+            var access_token = user.dtoken;
+            request.get('https://api.dropbox.com/1/fileops/create_folder', {
+                root : "dropbox",
+                path : "/" + newfolder,
+                headers: { Authorization: 'Bearer ' + token }
+            }, function (error, response, body) {
+                if(error) {
+                throw error;
+                res.redirect("./createone");
+                }
+                //add folder here
+                request.get('https://api.dropbox.com/1/account/info', {
+                headers: { Authorization: 'Bearer ' + token}},
+                function(error, response, body) {
+                    if(error) {throw error}
+                    SiteListModel.findOne({"dropid": JSON.parse(body).uid},
+                    function(err, id) {
+                        if(err) {throw err}
+                        if(id) {
+                        id.siteList.push(newfolder);
+                        }
+                        else {
+                        var newNameSchema = new NameSchemaModel({
+                            name: newfolder,
+                            filePath: "/" + newfolder,
+                            dropid: JSON.parse(body).uid,
+                            token: token});
+                        newNameSchema.save();
+                        var newList = new SiteListModel({
+                            dropid: JSON.parse(body).uid,
+                            siteList: [newfolder]});
+                        newList.save();
+                        }
+                    });
+                });
+                res.redirect("./manage");
+                
+            });
+            });
 	});
 });
 
