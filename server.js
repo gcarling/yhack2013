@@ -124,6 +124,8 @@ app.get('/manage',  function(req, res) {
         if(error) {throw error}
         dropid = JSON.parse(body).uid;
         SiteListModel.findOne({dropid : dropid}, function(err, siteList) {
+          console.log(dropid);
+          console.log(siteList.siteList);
           returnhtml = generateManage(siteList.siteList);
           res.send(returnhtml);            
         });
@@ -180,6 +182,7 @@ function deleteSiteEntry(dropid, sitename, res) {
 	    data.remove()});
     SiteListModel.findOne({"dropid": dropid},
 	function(err, data) {
+    console.log(siteList.siteList);
 	    if(err) {
             res.send("-1");
         }
@@ -236,7 +239,7 @@ app.post('/createcallback', function(req, res) {
                     function(err, id) {
                         if(err) {throw err}
                         if(id) {
-                        id.siteList.push({ sitename : newfolder,  pathname : "/" + newfolder});
+                        id.siteList.push({ sitename : newfolder,  path : "/" + newfolder});
                         id.save();
                         }
                         else {
@@ -252,9 +255,9 @@ app.post('/createcallback', function(req, res) {
                         newList.siteList.push({sitename : newfolder, path : "/" + newfolder});
                         newList.save();
                         }
+                        res.redirect("../manage");
                     });
                 });
-                res.redirect("../manage");
                 
             });
         });
