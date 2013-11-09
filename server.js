@@ -379,6 +379,7 @@ function getRedirect(dropid, userid, token, res) {
             // search dropbox for index paths and send to which 
             listIndexPaths(token,
                 function (paths) {
+                    console.log(paths);
                     if (paths.length == 0) {
                         // send to create
                         res.redirect("../createone");
@@ -492,37 +493,40 @@ app.post("/whichCreate", function (req, res) {
     var user_id = req.session.user_id; 
     var path = req.body.path;
     var sitename = req.body.sitename;
-    User.findOne({"uniqueid": user_id},
+    User.findOne({uniqueid: user_id},
 	function(err, userdata) {
 	    if(err) {throw err;}
 	    if(userdata) {
 		request.get('https://api.dropbox.com/1/account/info', {
 		    headers: { Authorization: 'Bearer ' + userdata.dtoken}},
-	  function(err, dropdata) {
-	      if(err) {throw err;}
-	      if(dropdata) {
-		  NameSchemaModel.findOne({"name": sitename},
-		     function(err, data) {
-			 if(err) {throw err;}
-			 if(!data) {
-			     var newName = new NameSchemaModel({
-				 name: sitename,
-				 filePath: path,
-				 dropid: JSON.parse(dropdata).uid,
-				 token: userdata.token});
-			     newName.save();
-			     SiteListModel.findOne({"dropid": JSON.parse(dropdata).uid},
-				function(err, siteListModelData) {
-				    if(err){throw err;}
-				    if(siteListModelData) {
-					siteListModelData.siteList.push([sitename, path]);
-                    siteListModelData.save();
-				    }
-				});
-			     }
-			 });
-		  }
-	      });
+              function(err, dropdata) {
+                  if(err) {throw err;}
+                  if(dropdata) {
+                  NameSchemaModel.findOne({name: sitename},
+                     function(err, data) {
+                     if(err) {throw err;}
+                     if(!data) {
+                         var newName = new NameSchemaModel({
+                                     name: sitename,
+                                     filePath: path,
+                                     dropid: dropdata.uid,
+                                     token: userdata.dtoken});
+                         newName.save();
+                         SiteListModel.findOne({dropid: dropdata.uid},
+                            function(err, siteListModelData) {
+                                if(err){throw err;}
+                                if(siteListModelData) {
+                                    siteListModelData.siteList.push({sitename:sitename,
+                                                                     path: path});
+                                    siteListModelData.save(function () {
+                                        res.send("./site/" + sitename);
+                                    });
+                                }
+                            });
+                         }
+                  });
+              }
+          });
 	    }
 	});
 });
@@ -558,7 +562,7 @@ function breadcrumbed(str) {
 }
 
 function listIndexPaths(token, callback) {
-    var meta_uri = "https://api.dropbox.com/1/metadata/dropbox/";
+    var meta_uri = "https://api.dropbox.com/1/metadata/dropbox";
     var options = {
         list: true,
         file_limit: 25000,
@@ -573,17 +577,21 @@ function listIndexPaths(token, callback) {
         count.push(contents.length);
         var paths = [];  
         contents.forEach(function(dirName) {
-            request.get(meta_uri + dirName, options, 
+            request.get(meta_uri + dirName.path, options, 
                 function (err, res, bod) {
-                    var dirContents = JSON.parse(bod).contents;
-                    for (item in dirContents) {
-                        var split = item.path.split("/");
-                        if (split[split.length-1] === "index.html") {
-                            paths.push(JSON.parse(bod).path);
-                        }
+                    var dirMeta = JSON.parse(bod);
+                    if (dirMeta) {
+                        dirMeta.contents.forEach(function (item) {
+                            if (typeof item.path != 'undefined' && item.path) {
+                                var split = item.path.split("/");
+                                if (split[split.length-1] === "index.html") {
+                                    paths.push(JSON.parse(bod).path);
+                                }
+                            }
+                        });
+                        count[0] = count[0] - 1;
+                        if (count[0] == 0) callback(paths);
                     }
-                    count[0] = count[0] - 1;
-                    if (count[0] == 0) callback(paths);
                 }
             );
         }); 
