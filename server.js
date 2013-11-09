@@ -3,8 +3,20 @@ var Dropbox = require("dropbox");
 var fs = require("fs");
 var https = require("https");
 var crypto = require('crypto');
-request = require('request'),
-        url = require('url');
+var request = require('request');
+var url = require('url');
+var mongoose = require("mongoose");
+
+var mongoURI = "mongodb://Launch:Drop@paulo.mongohq.com:10045/LaunchDrop";
+mongoose.connect(mongoURI);
+
+var userSchema = new Schema({
+    uniqueid: String,
+    dname: String,
+    dtoken: String
+});
+
+var User = mongoose.model("user", userSchema);
 
 //var client = new Dropbox.Client({
 //    key: "dfxzvgtw5vbh0r4",
@@ -24,6 +36,7 @@ app.use(express.static(__dirname));
 // Install Utilities
 app.use(express.bodyParser());
 app.use(express.cookieParser());
+app.use(express.session({secret: "Grahammer'd Loins."});
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(logErrors);
@@ -37,6 +50,12 @@ app.use(errorHandler);
 // insert your app key and secret here
 var APP_KEY = 'dfxzvgtw5vbh0r4'
 var APP_SECRET = 'y3fpf3zgcpxecpr';
+
+var userIdCount = 0;
+
+function getUniqueId() {
+    return generateCSRFToken() + userIdCount++;
+}
 
 function generateCSRFToken() {
         return crypto.randomBytes(18).toString('base64')
@@ -78,6 +97,12 @@ app.get('/callback', function (req, res) {
                         'CSRF token mismatch, possible cross-site request forgery attempt.'
                 );
         }
+
+        var unique_id = getUniqueId();
+        // Sets user id cookie
+        req.session.user_id = unique_id; 
+        req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000;
+
         // exchange access code for bearer token
         request.post('https://api.dropbox.com/1/oauth2/token', {
                 form: {
@@ -98,17 +123,27 @@ app.get('/callback', function (req, res) {
 
                 // extract bearer token
                 var token = data.access_token;
-
+                addUserToDB(token, "name", unique_pid);
                 // use the bearer token to make API calls
                 request.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
                         list : true,
                         file_limit:25000,
                         headers: { Authorization: 'Bearer ' + token }
                 }, function (error, response, body) {
-                        res.send('Logged in successfully as ' + body + JSON.parse(body).display_name + '.');
+                        res.send('Logged in successfully as ' + 
+                            body + JSON.parse(body).display_name + '.');
                 });
         });
 });
+
+function addUserToDB(token, name, uniqueid) {
+    var newuser = new User({
+        uniqueid: uniqueid,
+        dname: name,
+        dtoken: token
+    });
+    newuser.save();
+}
 
 var privateKey = fs.readFileSync("ssl/gabes-key.pem", "utf8");
 var certificate = fs.readFileSync("ssl/gabes-cert.pem", "utf8");
