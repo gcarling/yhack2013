@@ -1,5 +1,10 @@
 var express = require("express");
 var dropbox = require("dropbox");
+var fs = require("fs");
+
+var privateKey = fs.readFileSync("ssl/gabes-key.pem", "utf8");
+var certificate = fs.readFileSync("ssl/gabes-cert.pem", "utf8");
+var credentials = {key: privateKey, cert: certicate};
 
 // Init express
 var app = express();
@@ -27,10 +32,13 @@ app.get("/", function(res, req) {
     sendfile("index.html");
 });
 
+var httpsServer = https.createServer(credentials, app);
+
 // LAUNCH
 var port = process.env.PORT || 8080;
-app.listen(port);
-console.log('Listening on port' + port);
+
+httpsServer.listen(port);
+console.log('Listening securely on port' + port);
 
 /**
 Error Handlers
