@@ -25,8 +25,28 @@
 	font-family: "bebas_neue", Verdana, Tahoma;
 	font-size: 40px;
 	text-align: center;
+	margin-bottom: 20px;
 	padding-top: 2px;
 }
+
+.launch{
+	background-color: #E33022;
+	border-color: #E33022;
+}
+
+.launch:hover{
+	background-color: #BC0E00;
+	border-color: #BC0E00;
+}
+
+.launch:focus{
+	background-color: #E33022;
+	border-color: #E33022;
+}
+
+.read-more{
+}
+
 .headline {
 	padding: 0px 0;
 }
@@ -95,28 +115,12 @@ body > .container{
 	display: block;
 }
 
-#block1{
+#desc-box{
 	background-color: #85BACE;
 }
 
-#block2{
-	background-color: #FF9F40;
-}
-
-#block3{
-	background-color: #eeeeee;
-}
-
-#desc1{
+#desc{
 	color: #ffffff;
-}
-
-#desc2{
-	color: #ffffff;
-}
-
-#desc3{
-
 }
 
 footer {
