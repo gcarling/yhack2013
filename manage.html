@@ -52,6 +52,7 @@
     });
 
     $(".a-site").click(function(event) {
+      console.log("Registered click");
       var info = $("#" + event.target.id).text();
       var parsed = info.split(" - ");
       var name = parsed[0];
