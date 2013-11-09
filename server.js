@@ -3,8 +3,19 @@ var Dropbox = require("dropbox");
 var fs = require("fs");
 var https = require("https");
 var crypto = require('crypto');
-request = require('request'),
-        url = require('url');
+var request = require('request');
+var url = require('url');
+var mongoose = require("mongoose");
+
+var mongoURI = "ate something";
+
+var userSchema = new Schema({
+    uniqueid: String,
+    dname: String,
+    dtoken: String
+});
+
+var User = mongoose.model("user", userSchema);
 
 //var client = new Dropbox.Client({
 //    key: "dfxzvgtw5vbh0r4",
@@ -111,7 +122,6 @@ app.get('/callback', function (req, res) {
 
                 // extract bearer token
                 var token = data.access_token;
-
                 // use the bearer token to make API calls
                 request.get('https://api.dropbox.com/1/account/info', {
                         headers: { Authorization: 'Bearer ' + token }
@@ -120,6 +130,19 @@ app.get('/callback', function (req, res) {
                 });
         });
 });
+
+function addUserToDB(token, name, uniqueid) {
+    var newuser = new User({
+        uniqueid: uniqueid,
+        dname: name,
+        dtoken: token
+    });
+    newuser.save();
+}
+
+function getUser(uniqueId) {
+    return User.findone({"uniqueid" : uniqueId).dtoken;
+}
 
 var privateKey = fs.readFileSync("ssl/gabes-key.pem", "utf8");
 var certificate = fs.readFileSync("ssl/gabes-cert.pem", "utf8");
