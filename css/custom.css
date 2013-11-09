@@ -77,16 +77,13 @@ body > .container{
 	display: block;
 }
 
-.featurette-divider {
-	margin: 80px 0;
-	border-top: 1px solid #0D0B6A;
-}
 .featurette {
 	overflow: hidden; 
 	width: 90%;
 	padding-top: 5%;
 	display: block;
 	margin: auto;
+	text-align: center;
 }
 
 .featurette-image.pull-left {
@@ -123,8 +120,8 @@ body > .container{
 	color: #ffffff;
 }
 
-footer {
-	margin: 50px 0;
+.feature-list{
+	text-align: center;
 }
 
 /* RESPONSIVE CSS */
