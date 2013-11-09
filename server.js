@@ -97,7 +97,7 @@ function generateManage(user_sites){
   var parsed = html.split("**PARSE HERE**");
   start = parsed[0];
   end = parsed[1];
-  var build;
+  var build = "";
   for (var i = 0; i < user_sites.length; i++){
     build += "<button class='btn btn-primary a-site' id='site";
     build += i;
