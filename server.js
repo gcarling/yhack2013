@@ -207,8 +207,7 @@ function getRedirect(dropid, userid, token) {
                              siteList: []});
             newList.save();
             // search dropbox for index paths and send to which 
-            var startPath = "https://api.dropbox.com/1/metadata/dropbox/";
-            listIndexPaths(startPath, "", token,
+            listIndexPaths(token,
                 function (paths) {
                     if (paths.length == 0) {
                         // send to create
@@ -293,7 +292,6 @@ app.post("/whichCreate", function (req, res) {
     var user_id = req.session.user_id; 
     var path = req.body.path;
     var sitename = req.body.sitename;
-    res.send(user_id + " " + path + " " + sitename);
 });
 
 function generateWhich(paths) {
@@ -324,5 +322,51 @@ function breadcrumbed(str) {
     }
     return breadcrumb;
 }
+
+function listIndexPaths(token, callback) {
+    var meta_uri = "https://api.dropbox.com/1/metadata/dropbox/";
+    var options = {
+        list: true,
+        file_limit: 25000,
+        headers: {Authorization: "Bearer " + token}
+    };
+    request.get(meta_uri , options, function (error, response, body) {
+        var contents = JSON.parse(body).contents;
+        contents.filter(function (e) {
+            return e.is_dir;
+        });
+        var count = [];
+        count.push(content.length);
+        var paths = [];  
+        contents.forEach(function(dirName) {
+            request.get(meta_uri + dirName, options, 
+                function (err, res, bod) {
+                    var dirContents = JSON.parse(bod).contents;
+                    for each (item in dirContents) {
+                        var split = item.path.split("/");
+                        if (split[split.length-1] === "index.html") {
+                            paths.push(JSON.parse(bod).path);
+                        }
+                    }
+                    count[0] = count[0] - 1;
+                    if (count[0] == 0) callback(paths);
+                }
+            );
+        }); 
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
