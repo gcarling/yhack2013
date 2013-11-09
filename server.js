@@ -10,10 +10,16 @@ var mongoose = require("mongoose");
 var mongoURI = "mongodb://Launch:Drop@paulo.mongohq.com:10045/LaunchDrop";
 mongoose.connect(mongoURI);
 
-var userSchema = new Schema({
+var site = new mongoose.Schema({
+    name: String,
+    path: String
+});
+
+var userSchema = new mongoose.Schema({
     uniqueid: String,
     dname: String,
-    dtoken: String
+    dtoken: String,
+    sites: [site]
 });
 
 var User = mongoose.model("user", userSchema);
@@ -141,7 +147,8 @@ function addUserToDB(token, name, uniqueid) {
     var newuser = new User({
         uniqueid: uniqueid,
         dname: name,
-        dtoken: token
+        dtoken: token,
+        sites: []
     });
     newuser.save();
 }
