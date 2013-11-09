@@ -155,6 +155,10 @@ app.get('/callback', function (req, res) {
                 var token = data.access_token;
                 addUserToDB(token, "name", unique_pid);
                 // use the bearer token to make API calls
+	        request.get('https://api.dropbox.com/1/account/info', {},
+			    function(error, response, body) {
+				getRedirect(JSON.parse(body).uid);
+			    });
                 request.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
                         list : true,
                         file_limit:25000,

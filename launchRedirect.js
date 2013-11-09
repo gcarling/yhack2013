@@ -1,0 +1,82 @@
+var siteListSchema = new Schema({
+    uniqueid: String,
+    siteList: [String]});
+var SiteListModel = mongoose.model("siteList", siteListSchema);
+
+
+//takes in an array with the
+//path and an array of parameters for the redirect
+function getRedirect(userid, unique_pid, callback, token) {
+    SiteListModel.findone({"uniqueid": userid}, function(err, id) {
+	if(err) {
+	    var newArr = new Array();
+	    var newEntry = new SiteListModel(
+		{uniqueid: userid,
+		 siteList: newArr});
+	    newEntry.save();
+	    getRedirectHelp(newEntry, unique_pid, callback, token));
+	}
+	else
+	    getRedirectHelp(id, unique_pid, callback, token));
+    }
+}
+function getRedirectHelp(siteListEntry, unique_pid, callback, token) {
+    var output = new Array();
+    output['parameters'] = new Array();
+    var sitesList = siteListEntry.siteList;
+    if(sitesList.length > 0) {
+	output['address'] = "manage";
+	output['parameters']['sitesList']  = sitesList;
+	callback(output);
+    }
+    else {
+	var startPath = "https://api.dropbox.com/1/metaata/dropbox/";
+	listIndexPaths(startPath, "", token,
+		function(arr) {
+		    possibleSitesList = arr;
+		    if(possibleSitesList.length > 0) {
+			output['address'] = "which";
+			output['parameters']['sitesList'] = possibleSitesList;
+		    }
+		    else
+			output['address'] = "create";
+		    callback(output);
+		});
+    }
+}
+function listIndexPathsHelp(startPath, call, token, arr, ind, isLast,
+			   callback) {
+    request.get(startPath + call, {
+	list: true,
+	file_limit:25000,
+	headers: { Authorization: 'Bearer ' + token }
+    }, function (error, response, body) {
+	var parsedBody = JSON.parse(body);
+	if(parsedBody.is_dir) {
+	    var counter = 0;
+	    for(file in parsedBody.contents) {
+		if (!(counter == parsedBody.contents.length - 1)) {
+		    isLast = false;
+		}
+		var fileOb = parsedBody.contents[file];
+		var filePath = (fileOb.path.split("/"));
+		if(ind > 0 && fileOb.is_dir) {
+		    listIndexPathsHelp(fileOb.path, call, token,
+				   arr, ind-1, isLast, callback);
+		}
+		else {
+		    if(filePath[filePath.length - 1] === "index.html"
+		       && ind == 0) {
+			arr.push(fileOb.path);
+		    }
+		    if(isLast)
+			callback(arr);
+		}
+	    }
+	}
+    });
+}
+function listIndexPaths(startPath, call, token, callback) {
+    var arr = new Array();
+    listIndexPathsHelp(startPath, call, token, arr, 5, true, callback);
+}
