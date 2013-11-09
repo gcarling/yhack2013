@@ -10,10 +10,16 @@ var mongoose = require("mongoose");
 var mongoURI = "mongodb://Launch:Drop@paulo.mongohq.com:10045/LaunchDrop";
 mongoose.connect(mongoURI);
 
-var userSchema = new Schema({
+var site = new mongoose.Schema({
+    name: String,
+    path: String
+});
+
+var userSchema = new mongoose.Schema({
     uniqueid: String,
     dname: String,
-    dtoken: String
+    dtoken: String,
+    sites: [site]
 });
 
 var User = mongoose.model("user", userSchema);
@@ -88,13 +94,14 @@ app.get('/dropbox', function (req, res) {
 
 app.get('/callback', function (req, res) {
         if (req.query.error) {
-                return res.send('ERROR ' + req.query.error + ': ' + req.query.error_description);
+                return res.send('ERROR ' + req.query.error + 
+                    ': ' + req.query.error_description);
         }
 
         // check CSRF token
         if (req.query.state !== req.cookies.csrf) {
                 return res.status(401).send(
-                        'CSRF token mismatch, possible cross-site request forgery attempt.'
+                    'CSRF token mismatch, possible cross-site request forgery attempt.'
                 );
         }
 
@@ -140,7 +147,8 @@ function addUserToDB(token, name, uniqueid) {
     var newuser = new User({
         uniqueid: uniqueid,
         dname: name,
-        dtoken: token
+        dtoken: token,
+        sites: []
     });
     newuser.save();
 }
@@ -188,3 +196,10 @@ function errorHandler(err, req, res, next) {
   res.render('error', { error: err });
 }
 
+/*
+ * HTML ASSEMBLING aka we should really use a templating language
+ */
+
+function whichSites(paths) {
+    
+}
