@@ -336,6 +336,38 @@ app.post("/whichCreate", function (req, res) {
     var user_id = req.session.user_id; 
     var path = req.body.path;
     var sitename = req.body.sitename;
+    User.findOne({"uniqueid": user_id},
+	function(err, userdata) {
+	    if(err) {throw err;}
+	    if(userdata) {
+		request.get('https://api.dropbox.com/1/account/info', {
+		    headers: { Authorization: 'Bearer ' + userdata.dtoken}},
+	  function(err, dropdata) {
+	      if(err) {throw err;}
+	      if(dropdata) {
+		  NameSchemaModel.findOne({"name": sitename},
+		     function(err, data) {
+			 if(err) {throw err;}
+			 if(!data) {
+			     var newName = new NameSchemaModel({
+				 name: sitename,
+				 filePath: path,
+				 dropid: JSON.parse(dropdata).uid,
+				 token: userdata.token});
+			     newName.save();
+			     SiteListModel.findOne({"dropid": JSON.parse(dropdata).uid},
+				function(err, siteListModelData) {
+				    if(err){throw err;}
+				    if(siteListModelData) {
+					siteListModelData.siteList.push(sitename);
+				    }
+				});
+			     }
+			 });
+		  }
+	      });
+	    }
+	});
 });
 
 function generateWhich(paths) {
