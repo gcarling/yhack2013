@@ -24,12 +24,6 @@ var userSchema = new mongoose.Schema({
 
 var User = mongoose.model("user", userSchema);
 
-//var client = new Dropbox.Client({
-//    key: "dfxzvgtw5vbh0r4",
-//    secret: "y3fpf3zgcpxecpr"
-//});
-
-
 // Init express
 var app = express();
 
