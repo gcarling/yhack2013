@@ -126,9 +126,27 @@ app.get('/manage',  function(req, res) {
   });
 });
 
-app.get("/s/*", function(req, res) {
-  url = req.url; 
-  filepath = url.substring(3);
+app.get("/site/*", function(req, res) {
+  var url = req.url; 
+  // cuts off the /s/
+  var filepath = url.substring(3);
+  // gets the sitename (at the beginning of the filepath)
+  var sitename = filepath.split("/")[0];
+  // gets the real filepath, after sitename
+  var realfilepath = filepath.substring(sitename);
+  if(realfilepath === "/") {
+    realfilepath = "/index.html";
+  }
+  NameSchemaModel.findOne({name : sitename}, function(err, blob) {
+    var headpath = blob.filePath;
+    var access_token = blob.token;
+    request.get('https://api-content.dropbox.com/1/files/dropbox' + headpath + realfilepath, {
+      headers: { Authorization: 'Bearer ' + access_token}},
+      function(error, response, body) {
+        if(error){throw error}
+        res.sendfile(body);
+    }); 
+  });   
 });
 
 app.post("/deletion", function(req, res) {
