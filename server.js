@@ -6,16 +6,33 @@ var crypto = require('crypto');
 request = require('request'),
         url = require('url');
 
-var client = new Dropbox.Client({
-    key: "dfxzvgtw5vbh0r4",
-    secret: "y3fpf3zgcpxecpr"
-});
+//var client = new Dropbox.Client({
+//    key: "dfxzvgtw5vbh0r4",
+//    secret: "y3fpf3zgcpxecpr"
+//});
 
 
+// Init express
+var app = express();
 
-client.authDriver(new Dropbox.AuthDriver.Popup({
-    receiverUrl: "https://fdkfjskdlfjasdklfj/oauth_receiver.html"}));
-client.authDriver(new Dropbox.AuthDriver.NodeServer(8191));
+// Gzip requests for speed 
+app.use(express.compress());
+
+// Host static files
+app.use(express.static(__dirname));
+
+// Install Utilities
+app.use(express.bodyParser());
+app.use(express.cookieParser());
+app.use(express.methodOverride());
+app.use(app.router);
+app.use(logErrors);
+app.use(clientErrorHandler);
+app.use(errorHandler);
+
+//client.authDriver(new Dropbox.AuthDriver.Popup({
+//    receiverUrl: "https://fdkfjskdlfjasdklfj/oauth_receiver.html"}));
+//client.authDriver(new Dropbox.AuthDriver.NodeServer(8191));
 
 // insert your app key and secret here
 var APP_KEY = 'dfxzvgtw5vbh0r4'
@@ -34,7 +51,7 @@ function generateRedirectURI(req) {
         });
 }
 
-app.get('/', function (req, res) {
+app.get('/db', function (req, res) {
         var csrfToken = generateCSRFToken();
         res.cookie('csrf', csrfToken);
         res.redirect(url.format({
@@ -95,31 +112,11 @@ var privateKey = fs.readFileSync("ssl/gabes-key.pem", "utf8");
 var certificate = fs.readFileSync("ssl/gabes-cert.pem", "utf8");
 var credentials = {key: privateKey, cert: certificate};
 
-// Init express
-var app = express();
-
-// Gzip requests for speed 
-app.use(express.compress());
-
-// Host static files
-app.use(express.static(__dirname));
-
-// Install Utilities
-app.use(express.bodyParser());
-app.use(express.cookieParser());
-app.use(express.methodOverride());
-app.use(app.router);
-app.use(logErrors);
-app.use(clientErrorHandler);
-app.use(errorHandler);
 
 /*
  * GET REQUESTS
  */
 
-app.get("/", function(res, req) {
-    sendfile("index.html");
-});
 
 var httpsServer = https.createServer(credentials, app);
 
