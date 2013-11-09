@@ -143,21 +143,26 @@ app.get("/site/*", function(req, res) {
   // gets the sitename (at the beginning of the filepath)
   var sitename = filepath.split("/")[0];
   // gets the real filepath, after sitename
-  var realfilepath = filepath.substring(sitename);
+  var realfilepath = filepath.substring(sitename.length);
   if(realfilepath === "/" || realfilepath === "") {
     realfilepath = "/index.html";
   }
-  console.log(sitename)
+  
   NameSchemaModel.findOne({name : sitename}, function(err, blob) {
-    console.log(blob);
     var headpath = blob.filePath;
     var access_token = blob.token;
-    request.get('https://api-content.dropbox.com/1/files/dropbox' + headpath + realfilepath, {
+    console.log(access_token);
+    var geturl = 'https://api-content.dropbox.com/1/files/dropbox' + headpath + "" + realfilepath;
+    ext = realfilepath.split(".");
+    if(ext ==== "html" || ext === "css" || ext === "js") {
+    request.get(geturl, {
       headers: { Authorization: 'Bearer ' + access_token}},
       function(error, response, body) {
-        if(error){throw error}
-        res.sendfile(body);
+        res.send(body);
     }); 
+    } else {
+      // link 'em
+    }
   });   
 });
 
