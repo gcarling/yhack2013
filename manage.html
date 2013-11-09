@@ -45,11 +45,13 @@
       var name = parsed[0];
       var filepath = parsed[1];
       console.log(name +"-"+filepath);
-      $.post("deletion", {filename: name}, function(data){
+      var obj = {sitename: name};
+      $.post("deletion", obj, function(data){
           if (data === "-1") {
             alert("There was an error, please try again.");
           }
           else {
+            console.log(data);
             location.reload();
           }
       });

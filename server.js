@@ -197,6 +197,7 @@ app.post("/deletion", function(req, res) {
 });
 
 function deleteSiteEntry(dropid, sitename, res) {
+  console.log(sitename);
     NameSchemaModel.findOne({"dropid": dropid, "name": sitename},
 	function(err, data) {
 	    if(err) {
@@ -215,12 +216,13 @@ function deleteSiteEntry(dropid, sitename, res) {
                 res.send("1");
             });
 	    }
+      else console.log("!!!!!!!");
 	});
 }
 
 function siteIndexOf(sitelist, sitename) {
     for (var i = 0; i < sitelist.length; i++) {
-        if (site.sitename === sitename) {
+        if (sitelist[i].sitename === sitename) {
             return i;
         }
     }
@@ -489,9 +491,8 @@ app.post("/addManage", function(req, res) {
 	headers: {Authorization: 'Bearer ' + user.dtoken}},
 	function(err, response,  idData) {
 	    var dropid = JSON.parse(idData).uid;
-	    NameSchemaModel.findOne({"dropid": dropid},
-		function(err, tokenData) {
-		    listIndexPaths(tokenData.token, function(arr) {
+	    
+		    listIndexPaths(user.dtoken, function(arr) {
 			if(arr.length != 0) {
 			    var outpaths = new Array();
 			    var count = 0;
@@ -512,7 +513,6 @@ app.post("/addManage", function(req, res) {
       else{
         res.redirect("../createone");
       }
-		    });
 		});
 	});
     });
