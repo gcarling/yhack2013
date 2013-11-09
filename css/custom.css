@@ -107,9 +107,11 @@ body > .container{
 
 .featurette-image{
 	height: 50%;
+	/*width: 450px;*/
 	float: center;
 	margin: 0 auto;
 	display: block;
+
 }
 
 #desc-box{
