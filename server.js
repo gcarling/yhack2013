@@ -23,9 +23,14 @@ var userSchema = new mongoose.Schema({
     dtoken: String,
 });
 
+var site = new mongoose.Schema({
+    sitename: String,
+    path: String
+});
+
 var siteListSchema = new mongoose.Schema({
     dropid: String,
-    siteList: [String]
+    siteList: [site]
 });
 
 var SiteListModel = mongoose.model("siteList", siteListSchema);
@@ -163,17 +168,27 @@ app.post("/deletion", function(req, res) {
 });
 
 function deleteSiteEntry(dropid, filename) {
-    NameSchemaModel.findOne({"dropid": dropid, "name": name},
+    NameSchemaModel.findOne({"dropid": dropid, "name": filename},
 	function(err, data) {
 	    if(err) {throw err;}
 	    data.remove()});
     SiteListModel.findOne({"dropid": dropid},
 	function(err, data) {
 	    if(err) {throw err;}
-	    if(data.siteList.indexOf(filename) != -1) {
-		data.siteList.splice(data.siteList.indexOf(filename), 1);
+	    if(siteIndexOf(data.siteList,sitename) != -1) {
+            data.siteList.splice(siteIndexOf(data.siteList,sitename), 1);
+            data.save();
 	    }
 	});
+}
+
+function siteIndexOf(sitelist, sitename) {
+    for (var i = 0; i < sitelist.length; i++) {
+        if (site.sitename === sitename) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 app.post('/createcallback', function(req, res) {
@@ -211,7 +226,8 @@ app.post('/createcallback', function(req, res) {
                     function(err, id) {
                         if(err) {throw err}
                         if(id) {
-                        id.siteList.push(newfolder);
+                        id.siteList.push({newfolder, "/" + newfolder});
+                        id.save();
                         }
                         else {
                         var newNameSchema = new NameSchemaModel({
@@ -222,7 +238,8 @@ app.post('/createcallback', function(req, res) {
                         newNameSchema.save();
                         var newList = new SiteListModel({
                             dropid: JSON.parse(body).uid,
-                            siteList: [newfolder]});
+                            siteList: []});
+                        newList.siteList.push({newfolder, "/" + newfolder});
                         newList.save();
                         }
                     });
@@ -230,7 +247,7 @@ app.post('/createcallback', function(req, res) {
                 res.redirect("./manage");
                 
             });
-            });
+        });
 	});
 });
 
@@ -289,7 +306,7 @@ app.get('/callback', function (req, res) {
 
                 // extract bearer token
                 var token = data.access_token;
-                addUserToDB(token, "name", unique_pid);
+                addUserToDB(token, "name", unique_id);
                 
                 // use token to get dropid and redirect to which, create
                 request.get('https://api.dropbox.com/1/account/info', 
@@ -421,7 +438,8 @@ app.post("/whichCreate", function (req, res) {
 				function(err, siteListModelData) {
 				    if(err){throw err;}
 				    if(siteListModelData) {
-					siteListModelData.siteList.push(sitename);
+					siteListModelData.siteList.push({sitename, path});
+                    siteListModelData.save();
 				    }
 				});
 			     }
