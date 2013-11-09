@@ -161,7 +161,7 @@ app.get("/site/*", function(req, res) {
     var geturl = 'https://api-content.dropbox.com/1/files/dropbox' + headpath + "" + realfilepath;
     ext_arr = realfilepath.split(".");
     ext = ext_arr[ext_arr.length - 1];
-    if(ext === "html" || ext === "css" || ext === "js") {
+    if(ext === "html" ||  ext === "js") {
     request.get(geturl, {
       headers: { Authorization: 'Bearer ' + access_token}},
       function(error, response, body) {
@@ -254,9 +254,6 @@ app.post('/createcallback', function(req, res) {
                     throw error;
                     res.redirect("./createone");
                 }
-			console.log("logging body");
-			console.log(body);
-			console.log("logged body");
 			//add folder here
 			request.post('https://api.dropbox.com/1/account/info', {
 			    headers: { Authorization: 'Bearer ' + access_token}},
@@ -531,6 +528,7 @@ app.post("/whichCreate", function (req, res) {
                                      dropid: dropdata.uid,
                                      token: userdata.dtoken});
                          newName.save();
+                         console.log("drop data: " + dropdata);
                          SiteListModel.findOne({dropid: dropdata.uid},
                             function(err, siteListModelData) {
                                 if(err){throw err;}
