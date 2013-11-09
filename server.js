@@ -418,7 +418,7 @@ function listIndexPaths(token, callback) {
             request.get(meta_uri + dirName, options, 
                 function (err, res, bod) {
                     var dirContents = JSON.parse(bod).contents;
-                    for each (item in dirContents) {
+                    for (item in dirContents) {
                         var split = item.path.split("/");
                         if (split[split.length-1] === "index.html") {
                             paths.push(JSON.parse(bod).path);
