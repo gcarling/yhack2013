@@ -78,32 +78,51 @@ app.get('/createone/:used', function(req, res) {
     res.sendfile("./createone.html");
   }
 });
+var nameSchema = new Schema({
+    name: String,
+    filePath: String,
+    token: String});
+var NameSchemaModel = mongoose.model("nameSchema", siteListSchema);
+
 
 app.post('/createcallback', function(req, res) {
   var newfolder = req.body.sitename;
-  var userid = req.session.user_id; 
-  if(site-exists(newfolder)) {
-    res.redirect("./createone?used=true")
-    return;
-  }
-  User.findOne({uniqueid : userid}, function(err, user) {
-    if(err || !(user)) {
-      throw err;
-    }
-    var access_token = user.dtoken;
-    request.get('https://api.dropbox.com/1/fileops/create_folder', {
-            root : "dropbox",
-            path : "/" + newfolder,
-            headers: { Authorization: 'Bearer ' + token }
-    }, function (error, response, body) {
-      if(error) {
-        throw error;
-        res.redirect("./createone");
-      }
-      res.redirect("./manage");
-    });
-  });
+  var userid = req.session.user_id;
+  NameSchemaModel.findOne({"filePath" : newfolder},
+	function(err, id) {
+	    if(err) {throw err};
+	    else if(id) {
+		res.redirect("./createone?used=true")
+		return;
+	    }
+	    User.findOne({uniqueid : userid}, function(err, user) {
+		if(err || !(user)) {
+		    throw err;
+		}
+		
+		var access_token = user.dtoken;
+		request.get('https://api.dropbox.com/1/fileops/create_folder', {
+		    root : "dropbox",
+		    path : "/" + newfolder,
+		    headers: { Authorization: 'Bearer ' + token }
+		}, function (error, response, body) {
+		    if(error) {
+			throw error;
+			res.redirect("./createone");
+		    }
+		    //add folder here
+		    var newNameSchema = new NameSchemaModel({
+			name: newfolder,
+			filePath: "/" + newfolder,
+			token: token});
+		    newNameSchema.save();
+		    res.redirect("./manage");
+		    
+		});
+	    });
+	});
 });
+
 
 app.get('/dropbox', function (req, res) {
         var csrfToken = generateCSRFToken();
