@@ -88,13 +88,14 @@ app.get('/dropbox', function (req, res) {
 
 app.get('/callback', function (req, res) {
         if (req.query.error) {
-                return res.send('ERROR ' + req.query.error + ': ' + req.query.error_description);
+                return res.send('ERROR ' + req.query.error + 
+                    ': ' + req.query.error_description);
         }
 
         // check CSRF token
         if (req.query.state !== req.cookies.csrf) {
                 return res.status(401).send(
-                        'CSRF token mismatch, possible cross-site request forgery attempt.'
+                    'CSRF token mismatch, possible cross-site request forgery attempt.'
                 );
         }
 
@@ -188,3 +189,10 @@ function errorHandler(err, req, res, next) {
   res.render('error', { error: err });
 }
 
+/*
+ * HTML ASSEMBLING aka we should really use a templating language
+ */
+
+function whichSites(paths) {
+    
+}
