@@ -19,9 +19,14 @@ var userSchema = new mongoose.Schema({
     uniqueid: String,
     dname: String,
     dtoken: String,
-    sites: [site]
 });
 
+var siteListSchema = new Schema({
+    dropid: String,
+    siteList: [String]
+});
+
+var SiteListModel = mongoose.model("siteList", siteListSchema);
 var User = mongoose.model("user", userSchema);
 
 //var client = new Dropbox.Client({
@@ -157,24 +162,53 @@ app.get('/callback', function (req, res) {
                 // extract bearer token
                 var token = data.access_token;
                 addUserToDB(token, "name", unique_pid);
-                // use the bearer token to make API calls
-                request.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
-                        list : true,
-                        file_limit:25000,
-                        headers: { Authorization: 'Bearer ' + token }
-                }, function (error, response, body) {
-                        res.send('Logged in successfully as ' + 
-                            body + JSON.parse(body).display_name + '.');
-                });
+                // use token to get dropid and redirect to which, create
+                request.get('https://api.dropbox.com/1/account/info', 
+                        {
+                            headers: { Authorization: 'Bearer ' + token }
+                        },
+                    function(error, response, body) {
+                        getRedirect(JSON.parse(body).uid);
+			    });
         });
 });
+
+//takes in an array with the
+//path and an array of parameters for the redirect
+function getRedirect(dropid, userid, callback, token) {
+    SiteListModel.findOne({"dropid": dropid}, function(err, sitelist) {
+        // if no previous dropid
+        if(err || !sitelist || sitelist.siteList.length == 0) {
+            var newList = new SiteListModel(
+                            {dropid: dropid,
+                             siteList: []});
+            newList.save();
+            // search dropbox for index paths and send to which 
+            var startPath = "https://api.dropbox.com/1/metadata/dropbox/";
+            listIndexPaths(startPath, "", token,
+                function (paths) {
+                    if (paths.length == 0) {
+                        // send to create
+                        res.redirect("./create");
+                    } 
+                    else {
+                        res.location("./which");
+                        res.send(generateWhich(paths));
+                    }
+                });
+        }
+        else {
+            // send to manage **NEEDS TO CREATE THIS GET HANDLER 
+            res.redirect("./manage");
+        }
+    });
+}
 
 function addUserToDB(token, name, uniqueid) {
     var newuser = new User({
         uniqueid: uniqueid,
         dname: name,
         dtoken: token,
-        sites: []
     });
     newuser.save();
 }
@@ -229,7 +263,7 @@ function errorHandler(err, req, res, next) {
 
 
 app.get("/whichtest", function (req, res) {
-    res.send(whichSites(["/bin/sleep", "/course/cs033/hi"]));
+    res.send(generateWhich(["/bin/sleep", "/course/cs033/hi"]));
 });
 
 app.post("/whichCreate", function (req, res) {
@@ -239,7 +273,7 @@ app.post("/whichCreate", function (req, res) {
     res.send(user_id + " " + path + " " + sitename);
 });
 
-function whichSites(paths) {
+function generateWhich(paths) {
     var html = fs.readFileSync("which.html", "utf8");
     var parsed = html.split("**PARSE HERE**");
     var built = parsed[0];
@@ -267,3 +301,5 @@ function breadcrumbed(str) {
     }
     return breadcrumb;
 }
+
+
