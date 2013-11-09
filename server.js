@@ -472,8 +472,9 @@ function errorHandler(err, req, res, next) {
 app.post("/addManage", function(req, res) {
     var user_id = req.session.user_id;
     var currPaths = req.body.pathnames
+    User.findOne({uniqueid : user_id}, function(err, user) {
     request.post('https://api.dropbox.com/1/account/info', {
-	headers: {Authorization: 'Bearer ' + user_id}},
+	headers: {Authorization: 'Bearer ' + user.dtoken}},
 	function(err, response,  idData) {
 	    var dropid = JSON.parse(idData).uid;
 	    NameSchemaModel.findOne({"dropid": dropid},
@@ -499,6 +500,7 @@ app.post("/addManage", function(req, res) {
 		    });
 		});
 	});
+    });
 });
 
 app.get("/whichtest", function (req, res) {
