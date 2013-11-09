@@ -83,13 +83,12 @@ function generateRedirectURI(req) {
         });
 }
 
-app.get('/createone/:used', function(req, res) {
-  var error = req.params.used;
-  if(error) {
-    res.sendfile("./createone-error.html");
-  } else {
-    res.sendfile("./createone.html");
-  }
+app.get('/createone_failed', function(req, res) {
+  res.sendfile("./createone-error.html");
+});
+
+app.get('/createone', function(req, res) {
+  res.sendfile("./createone.html");
 });
 
 
@@ -123,6 +122,7 @@ app.get('/manage',  function(req, res) {
         headers: { Authorization: 'Bearer ' + access_token}},
         function(error, response, body) {
         if(error) {throw error}
+        dropid = body.uid;
         SiteListModel.findOne({dropid : dropid}, function(err, siteList) {
           returnhtml = generateManage(siteList.siteList);
           res.send(returnhtml);            
@@ -210,7 +210,7 @@ app.post('/createcallback', function(req, res) {
             throw err;
         }
 	    else if (id) {
-            res.redirect("./createone?used=true")
+            res.redirect("./createone_failed");
             return;
 	    }
 	    User.findOne({uniqueid : userid}, function(err, user) {
@@ -221,7 +221,7 @@ app.post('/createcallback', function(req, res) {
             request.get('https://api.dropbox.com/1/fileops/create_folder', {
                 root : "dropbox",
                 path : "/" + newfolder,
-                headers: { Authorization: 'Bearer ' + token }
+                headers: { Authorization: 'Bearer ' + access_token }
             }, function (error, response, body) {
                 if(error) {
                 throw error;
@@ -229,14 +229,14 @@ app.post('/createcallback', function(req, res) {
                 }
                 //add folder here
                 request.get('https://api.dropbox.com/1/account/info', {
-                headers: { Authorization: 'Bearer ' + token}},
+                headers: { Authorization: 'Bearer ' + access_token}},
                 function(error, response, body) {
                     if(error) {throw error}
                     SiteListModel.findOne({"dropid": JSON.parse(body).uid},
                     function(err, id) {
                         if(err) {throw err}
                         if(id) {
-                        id.siteList.push({newfolder, "/" + newfolder});
+                        id.siteList.push({ sitename : newfolder,  pathname : "/" + newfolder});
                         id.save();
                         }
                         else {
@@ -249,12 +249,12 @@ app.post('/createcallback', function(req, res) {
                         var newList = new SiteListModel({
                             dropid: JSON.parse(body).uid,
                             siteList: []});
-                        newList.siteList.push({newfolder, "/" + newfolder});
+                        newList.siteList.push({sitename : newfolder, path : "/" + newfolder});
                         newList.save();
                         }
                     });
                 });
-                res.redirect("./manage");
+                res.redirect("../manage");
                 
             });
         });
@@ -324,14 +324,14 @@ app.get('/callback', function (req, res) {
                           headers: { Authorization: 'Bearer ' + token }
                         },
                     function(error, response, body) {
-                        getRedirect(JSON.parse(body).uid, unique_id, token);
+                        getRedirect(JSON.parse(body).uid, unique_id, token, res);
 			    });
         });
 });
 
 //takes in an array with the
 //path and an array of parameters for the redirect
-function getRedirect(dropid, userid, token) {
+function getRedirect(dropid, userid, token, res) {
     SiteListModel.findOne({dropid: dropid}, function(err, sitelist) {
         // if no previous dropid
         if(err || !sitelist || sitelist.siteList.length == 0) {
@@ -344,17 +344,17 @@ function getRedirect(dropid, userid, token) {
                 function (paths) {
                     if (paths.length == 0) {
                         // send to create
-                        res.redirect("./create");
+                        res.redirect("../createone");
                     } 
                     else {
-                        res.location("./which");
+                        res.location("../which");
                         res.send(generateWhich(paths));
                     }
                 });
         }
         else {
             // send to manage **NEEDS TO CREATE THIS GET HANDLER 
-            res.redirect("./manage");
+            res.redirect("../manage");
         }
     });
 }
@@ -448,7 +448,7 @@ app.post("/whichCreate", function (req, res) {
 				function(err, siteListModelData) {
 				    if(err){throw err;}
 				    if(siteListModelData) {
-					siteListModelData.siteList.push({sitename, path});
+					siteListModelData.siteList.push([sitename, path]);
                     siteListModelData.save();
 				    }
 				});
@@ -496,13 +496,13 @@ function listIndexPaths(token, callback) {
         file_limit: 25000,
         headers: {Authorization: "Bearer " + token}
     };
-    request.get(meta_uri , optio, function (error, response, body) {
+    request.get(meta_uri , options, function (error, response, body) {
         var contents = JSON.parse(body).contents;
         contents.filter(function (e) {
             return e.is_dir;
         });
         var count = [];
-        count.push(content.length);
+        count.push(contents.length);
         var paths = [];  
         contents.forEach(function(dirName) {
             request.get(meta_uri + dirName, options, 
