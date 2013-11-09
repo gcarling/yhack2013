@@ -96,6 +96,7 @@ app.get('/createcallback', function(req, res) {
             res.send('Logged in successfully as ' + 
                 body + JSON.parse(body).display_name + '.');
     });
+  });
 });
 
 app.get('/dropbox', function (req, res) {
