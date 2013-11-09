@@ -108,6 +108,7 @@ function generateManage(user_sites){
     build += "'>Delete</button></br>";
     console.log(build);
   }
+  console.log(start + build + end);
   return start + build + end;
 }
 

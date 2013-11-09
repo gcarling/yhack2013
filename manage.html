@@ -19,8 +19,8 @@
     <h1>Your Sites</h1>
     <div class="site-list">
       **PARSE HERE**
-      <!-- <button class="btn btn-primary a-site" id="site1">Test 1 - ~/test</button><button class="btn btn-primary delete" id="delete1">Delete</button></br>
-      <button class="btn btn-primary a-site" id="site2">Another Test - /course/test</button><button class="btn btn-primary delete" id="delete2">Delete</button></br> -->
+      <!-- <button class='btn btn-primary a-site' id="site1">Test 1 - ~/test</button><button class="btn btn-primary delete" id="delete1">Delete</button></br>
+      <button class='btn btn-primary a-site' id="site2">Another Test - /course/test</button><button class="btn btn-primary delete" id="delete2">Delete</button></br> -->
     </div>
     <button class="btn btn-primary add-site">Launch Another Site</button>
   
@@ -52,7 +52,6 @@
     });
 
     $(".a-site").click(function(event) {
-      console.log("Registered click");
       var info = $("#" + event.target.id).text();
       var parsed = info.split(" - ");
       var name = parsed[0];
@@ -78,7 +77,6 @@
         }
       });
     });
-    }});
 
   </script>
 </html>
