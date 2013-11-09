@@ -80,7 +80,7 @@ app.get('/createone', function(req, res) {
   res.sendfile("./createone.html");
 });
 
-app.get('/createcallback', function(req, res) {
+app.post('/createcallback', function(req, res) {
   var newfolder = req.body.sitename;
   var userid = req.session.user_id; 
   User.findOne({uniqueid : userid}, function(err, user) {
@@ -90,11 +90,14 @@ app.get('/createcallback', function(req, res) {
     var access_token = user.dtoken;
     request.get('https://api.dropbox.com/1/fileops/create_folder', {
             root : "dropbox",
-            file_limit:25000,
+            path : "/" + newfolder,
             headers: { Authorization: 'Bearer ' + token }
     }, function (error, response, body) {
-            res.send('Logged in successfully as ' + 
-                body + JSON.parse(body).display_name + '.');
+      if(error) {
+        throw error;
+        res.redirect("./createone");
+      }
+      res.redirect("./which");
     });
   });
 });
@@ -155,11 +158,15 @@ app.get('/callback', function (req, res) {
                 var token = data.access_token;
                 addUserToDB(token, "name", unique_pid);
                 // use the bearer token to make API calls
+<<<<<<< HEAD
 	        request.get('https://api.dropbox.com/1/account/info', {},
 			    function(error, response, body) {
 				getRedirect(JSON.parse(body).uid);
 			    });
                 request.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
+=======
+                requesr.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
+>>>>>>> 51596695ec2e46cfb78319b97f75882faa9acf7b
                         list : true,
                         file_limit:25000,
                         headers: { Authorization: 'Bearer ' + token }
@@ -227,6 +234,39 @@ function errorHandler(err, req, res, next) {
  * HTML ASSEMBLING aka we should really use a templating language
  */
 
+app.get("/whichtest", function (req, res) {
+    res.send(whichSites(["/bin/sleep", "/course/cs033/hi"]));
+});
+
+app.post("/whichCreate", function (req, res) {
+     
+});
+
 function whichSites(paths) {
-    
+    var html = fs.readFileSync("which.html", "utf8");
+    var parsed = html.split("**PARSE HERE**");
+    var built = parsed[0];
+    for (var i = 0; i < paths.length; i++) {
+        built += "<a href='#' data-toggle='modal' data-target='#myModal'>" + 
+            "<li class='list-group-item'>" 
+            + breadcrumbed(paths[i]) + "</li></a>";
+    }
+    built += parsed[1];
+    return built;
+}
+
+function breadcrumbed(str) {
+    var breadcrumb = "";
+    for (var i = 0; i < str.length; i++) {
+        var character = str.substring(i,i+1);
+        if (character == '/') {
+            if (i != 0) {
+                breadcrumb += " > ";
+            }
+        }
+        else {
+            breadcrumb += character;
+        }
+    }
+    return breadcrumb;
 }
