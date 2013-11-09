@@ -157,27 +157,37 @@ app.get("/site/*", function(req, res) {
 app.post("/deletion", function(req, res) {
     User.findOne({"uniqueid": req.session.user_id},
 	function(err, data) {
-	    if(err) {throw err;}
-	        request.get('https://api.dropbox.com/1/account/info',
-			    {headers: { Authorization: 'Bearer ' + data.dtoken}},
-		   function(error, response, body) {
-		       if(error) {throw error;}
-		       deleteSiteEntry(JSON.parse(body).uid, req.filename);
-		   });
+	    if(err) {
+            res.send("-1");
+        }
+        request.get('https://api.dropbox.com/1/account/info',
+            {headers: { Authorization: 'Bearer ' + data.dtoken}},
+       function(error, response, body) {
+           if(error) {
+               res.send("-1");
+           }
+           deleteSiteEntry(JSON.parse(body).uid, req.body.sitename, res);
+       });
 	});
 });
 
-function deleteSiteEntry(dropid, filename) {
-    NameSchemaModel.findOne({"dropid": dropid, "name": filename},
+function deleteSiteEntry(dropid, sitename, res) {
+    NameSchemaModel.findOne({"dropid": dropid, "name": sitename},
 	function(err, data) {
-	    if(err) {throw err;}
+	    if(err) {
+            res.send("-1");
+        }
 	    data.remove()});
     SiteListModel.findOne({"dropid": dropid},
 	function(err, data) {
-	    if(err) {throw err;}
+	    if(err) {
+            res.send("-1");
+        }
 	    if(siteIndexOf(data.siteList,sitename) != -1) {
             data.siteList.splice(siteIndexOf(data.siteList,sitename), 1);
-            data.save();
+            data.save(function() {
+                res.send("1");
+            });
 	    }
 	});
 }
