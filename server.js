@@ -278,7 +278,7 @@ app.post('/createcallback', function(req, res) {
                                         });
                                         dumpurl = 'https://api-content.dropbox.com/1/files_put/dropbox/' + newfolder + '/index.html';
                                         request.post(dumpurl, {
-                                          body: "<html> hello world! </html>",
+                                          body: "<html> This is your index.html, and will be the front page of your site! Start your creation here.</html>",
                                           headers: { Authorization: 'Bearer ' + access_token}},
                                           function(er, re, bo) {
                                         newNameSchema.save(function (err) {
