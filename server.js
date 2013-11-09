@@ -80,6 +80,24 @@ app.get('/createone', function(req, res) {
   res.sendfile("./createone.html");
 });
 
+app.get('/createcallback', function(req, res) {
+  var newfolder = req.body.sitename;
+  var userid = req.session.user_id; 
+  User.findOne({uniqueid : userid}, function(err, user) {
+    if(err || !(user)) {
+      throw err;
+    }
+    var access_token = user.dtoken;
+    request.get('https://api.dropbox.com/1/fileops/create_folder', {
+            root : "dropbox",
+            file_limit:25000,
+            headers: { Authorization: 'Bearer ' + token }
+    }, function (error, response, body) {
+            res.send('Logged in successfully as ' + 
+                body + JSON.parse(body).display_name + '.');
+    });
+});
+
 app.get('/dropbox', function (req, res) {
         var csrfToken = generateCSRFToken();
         res.cookie('csrf', csrfToken);
