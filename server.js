@@ -139,7 +139,7 @@ app.get("/site/*", function(req, res) {
   var sitename = filepath.split("/")[0];
   // gets the real filepath, after sitename
   var realfilepath = filepath.substring(sitename);
-  if(realfilepath === "/") {
+  if(realfilepath === "/" || realfilepath === "") {
     realfilepath = "/index.html";
   }
   NameSchemaModel.findOne({name : sitename}, function(err, blob) {
