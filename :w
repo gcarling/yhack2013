@@ -115,27 +115,23 @@ function generateManage(user_sites){
 
 app.get('/manage',  function(req, res) {
   var userid = req.session.user_id;
-  if (!userid) { 
-      res.redirect("/");
-      return;
-  }
+  
   User.findOne({uniqueid : userid}, function(err, user) {
-        if(err || !user) {
-            res.redirect("/");
-            return;
+        if(err || !(user)) {
+            throw err;
         }
         var access_token = user.dtoken;
         request.get('https://api.dropbox.com/1/account/info', {
             headers: { Authorization: 'Bearer ' + access_token}},
             function(error, response, body) {
                 if(error) {throw error}
-                //console.log(body);
+                console.log(body);
                 dropid = JSON.parse(body).uid;
                 SiteListModel.findOne({dropid : dropid}, function(err, siteList) {
                     if (err) throw err;
-                  console.log("DROP: " + dropid);
-                  console.log("SL: " + siteList.siteList);
-                  var returnhtml = generateManage(siteList.siteList);
+                  //console.log(dropid);
+                  console.log(siteList.siteList);
+                  returnhtml = generateManage(siteList.siteList);
                   res.send(returnhtml);            
             });
         });
@@ -157,11 +153,11 @@ app.get("/site/*", function(req, res) {
   NameSchemaModel.findOne({name : sitename}, function(err, blob) {
     var headpath = blob.filePath;
     var access_token = blob.token;
-    //console.log(access_token);
+    console.log(access_token);
     var geturl = 'https://api-content.dropbox.com/1/files/dropbox' + headpath + "" + realfilepath;
     ext_arr = realfilepath.split(".");
     ext = ext_arr[ext_arr.length - 1];
-    if(ext === "html" ||  ext === "js") {
+    if(ext === "html" || ext === "css" || ext === "js") {
     request.get(geturl, {
       headers: { Authorization: 'Bearer ' + access_token}},
       function(error, response, body) {
@@ -205,7 +201,7 @@ function deleteSiteEntry(dropid, sitename, res) {
 	    data.remove()});
     SiteListModel.findOne({"dropid": dropid},
 	function(err, data) {
-    //console.log(siteList.siteList);
+    console.log(siteList.siteList);
 	    if(err) {
             res.send("-1");
         }
@@ -254,6 +250,9 @@ app.post('/createcallback', function(req, res) {
                     throw error;
                     res.redirect("./createone");
                 }
+			console.log("logging body");
+			console.log(body);
+			console.log("logged body");
 			//add folder here
 			request.post('https://api.dropbox.com/1/account/info', {
 			    headers: { Authorization: 'Bearer ' + access_token}},
@@ -386,25 +385,18 @@ function getRedirect(dropid, userid, token, res) {
                              siteList: []});
             newList.save();
             // search dropbox for index paths and send to which 
-            NameSchemaModel.findOne({dropid: dropid}, function(err, site) {
-                if (site) {
-                    res.redirect("../manage");
-                }
-                else {
-                listIndexPaths(token,
-                    function (paths) {
-                        console.log(paths);
-                        if (paths.length == 0) {
-                            // send to create
-                            res.redirect("../createone");
-                        } 
-                        else {
-                            res.location("../which");
-                            res.send(generateWhich(paths));
-                        }
+            listIndexPaths(token,
+                function (paths) {
+                    console.log(paths);
+                    if (paths.length == 0) {
+                        // send to create
+                        res.redirect("../createone");
+                    } 
+                    else {
+                        res.location("../which");
+                        res.send(generateWhich(paths));
+                    }
                 });
-                }
-            });
         }
         else {
             // send to manage **NEEDS TO CREATE THIS GET HANDLER 
@@ -472,10 +464,10 @@ function errorHandler(err, req, res, next) {
 app.post("/addManage", function(req, res) {
     var user_id = req.session.user_id;
     var currPaths = req.body.pathnames
-    request.post('https://api.dropbox.com/1/account/info', {
+    request.get('https://api.dropbox.com/1/account/info', {
 	headers: {Authorization: 'Bearer ' + user_id}},
-	function(err, response,  idData) {
-	    var dropid = JSON.parse(idData).uid;
+	function(err, idData) {
+	    dropid = JSON.parse(idData).uid;
 	    NameSchemaModel.findOne({"dropid": dropid},
 		function(err, tokenData) {
 		    listIndexPaths(tokenData.token, function(arr) {
@@ -513,12 +505,11 @@ app.post("/whichCreate", function (req, res) {
 	function(err, userdata) {
 	    if(err) {throw err;}
 	    if(userdata) {
-		request.post('https://api.dropbox.com/1/account/info', {
+		request.get('https://api.dropbox.com/1/account/info', {
 		    headers: { Authorization: 'Bearer ' + userdata.dtoken}},
-              function(err, response, dropdata) {
+              function(err, dropdata) {
                   if(err) {throw err;}
                   if(dropdata) {
-                      var dropid = JSON.parse(dropdata).uid;
                   NameSchemaModel.findOne({name: sitename},
                      function(err, data) {
                      if(err) {throw err;}
@@ -526,37 +517,19 @@ app.post("/whichCreate", function (req, res) {
                          var newName = new NameSchemaModel({
                                      name: sitename,
                                      filePath: path,
-                                     dropid: dropid,
+                                     dropid: dropdata.uid,
                                      token: userdata.dtoken});
                          newName.save();
-                         SiteListModel.findOne({dropid: dropid},
+                         SiteListModel.findOne({dropid: dropdata.uid},
                             function(err, siteListModelData) {
                                 if(err){throw err;}
                                 if(siteListModelData) {
                                     siteListModelData.siteList.push({sitename:sitename,
                                                                      path: path});
-                                    console.log("About to save 1");
-                                    siteListModelData.save(function (err) {
-                                        if (err) throw err;
-                                         res.redirect("../site/" + sitename);
-                                    });
-                                }
-                                else {
-                                    var siteList = [];
-                                    siteList.push({sitename:sitename, path: path});
-                                    var siteListModel = new SiteListModel({
-                                        dropid: dropid,
-                                        siteList: siteList
-                                    }); 
-                                    console.log("MODEL");
-                                    console.log(siteListModel);
-                                    siteListModel.save(function (err) {
-                                        if (err) throw err;
-                                         res.redirect("../site/" + sitename);
-                                    });
+                                    siteListModelData.save();
                                 }
                             });
-                           
+                            res.redirect("../site/" + sitename);
                          }
                   });
               }

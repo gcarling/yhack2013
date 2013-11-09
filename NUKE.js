@@ -34,5 +34,17 @@ SiteListModel.find({}, function (err, users) {
     users.forEach(function (user) {
         user.remove();
     });
-    console.log("NUKED.");
+
+    NameSchemaModel.find({}, function (err, names) {
+         names.forEach(function (name) {
+             name.remove();
+         });
+
+         User.find({}, function (err, us) {
+             us.forEach(function (u) {
+                 u.remove();
+             });
+             console.log("NUKED.");
+         });
+    });
 });
