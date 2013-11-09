@@ -100,10 +100,12 @@ app.get('/callback', function (req, res) {
                 var token = data.access_token;
 
                 // use the bearer token to make API calls
-                request.get('https://api.dropbox.com/1/account/info', {
+                request.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
+                        list : true,
+                        file_limit:25000,
                         headers: { Authorization: 'Bearer ' + token }
                 }, function (error, response, body) {
-                        res.send('Logged in successfully as ' + JSON.parse(body).display_name + '.');
+                        res.send('Logged in successfully as ' + body + JSON.parse(body).display_name + '.');
                 });
         });
 });
