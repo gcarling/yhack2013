@@ -525,11 +525,10 @@ app.post("/whichCreate", function (req, res) {
                                 if(siteListModelData) {
                                     siteListModelData.siteList.push({sitename:sitename,
                                                                      path: path});
-                                    siteListModelData.save(function () {
-                                        res.send("./site/" + sitename);
-                                    });
+                                    siteListModelData.save();
                                 }
                             });
+                            res.redirect("../site/" + sitename);
                          }
                   });
               }
