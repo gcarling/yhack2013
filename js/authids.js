@@ -1,0 +1,19 @@
+var mongoose = require("mongoose");
+mongoose.connect("stuff");
+var userSchema = new Schema({
+    uniqueid: String,
+    dname: String,
+    dtoken: String});
+var User = mongoose.model("users", userSchema);
+
+function addUserToDB(token, name) {
+    userid = getUniqueId();
+    var newuser = new User({
+	uniqueid: userid,
+	dname: name,
+	dtoken: token});
+    newuser.save();
+}
+function getUser(uniqueId) {
+    return User.findone({"uniqueid" : uniqueId).dtoken;
+}
