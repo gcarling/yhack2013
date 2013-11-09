@@ -87,6 +87,31 @@ app.get('/createone/:used', function(req, res) {
   }
 });
 
+app.get('/manage',  function(req, res) {
+  var userid = req.session.user_id;
+  
+  User.findOne({uniqueid : userid}, function(err, user) {
+        if(err || !(user)) {
+            throw err;
+        }
+        var access_token = user.dtoken;
+        request.get('https://api.dropbox.com/1/account/info', {
+        headers: { Authorization: 'Bearer ' + access_token}},
+        function(error, response, body) {
+        if(error) {throw error}
+        SiteListModel.findOne({dropid : dropid}, function(err, siteList) {
+          returnhtml = generateManage(siteList.siteList);
+          res.send(returnhtml);            
+        });
+     });
+  });
+});
+
+app.get("/s/*", function(req, res) {
+  url = req.url; 
+  filepath = url.substring(3);
+});
+
 app.post("/deletion", function(req, res) {
     User.findOne({"uniqueid": req.session.user_id},
 	function(err, data) {
@@ -243,7 +268,7 @@ app.get('/callback', function (req, res) {
 //takes in an array with the
 //path and an array of parameters for the redirect
 function getRedirect(dropid, userid, token) {
-    SiteListModel.findOne({"dropid": dropid}, function(err, sitelist) {
+    SiteListModel.findOne({dropid: dropid}, function(err, sitelist) {
         // if no previous dropid
         if(err || !sitelist || sitelist.siteList.length == 0) {
             var newList = new SiteListModel(
@@ -374,7 +399,7 @@ function listIndexPaths(token, callback) {
         file_limit: 25000,
         headers: {Authorization: "Bearer " + token}
     };
-    request.get(meta_uri , options, function (error, response, body) {
+    request.get(meta_uri , optio, function (error, response, body) {
         var contents = JSON.parse(body).contents;
         contents.filter(function (e) {
             return e.is_dir;
@@ -386,7 +411,7 @@ function listIndexPaths(token, callback) {
             request.get(meta_uri + dirName, options, 
                 function (err, res, bod) {
                     var dirContents = JSON.parse(bod).contents;
-                    for each (item in dirContents) {
+                    for (item in dirContents) {
                         var split = item.path.split("/");
                         if (split[split.length-1] === "index.html") {
                             paths.push(JSON.parse(bod).path);
