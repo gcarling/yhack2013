@@ -22,7 +22,11 @@
       <!-- <button class='btn btn-primary a-site' id="site1">Test 1 - ~/test</button><button class="btn btn-primary delete" id="delete1">Delete</button></br>
       <button class='btn btn-primary a-site' id="site2">Another Test - /course/test</button><button class="btn btn-primary delete" id="delete2">Delete</button></br> -->
     </div>
-    <button class="btn btn-primary add-site">Launch Another Site</button>
+    <!-- <form action="addManage" method="post">
+    <field type="hidden" name="pathnames" value="[]"/>
+    <input type="submit" class="btn btn-primary add-site" value="Add Another Site"></input>
+    </form> -->
+    <button class="btn btn-primary add-site" id="adder">Add Another Site</button>
   
   <!-- scripts -->
   <script src="js/jquery.js"></script>
@@ -59,16 +63,19 @@
       window.location = url;
     });
 
-    $(".add-site").click(function() {
+    $("#adder").click(function() {
       var allsites = $(".a-site");
+      var second = [];
+      var third = [];
       for (var i = 0; i < allsites.length; i++){
-        allsites[i] = allsites[i].innerText;
+        second.push(allsites[i].innerText);
       }
       for (var i = 0; i < allsites.length; i++){
-        parsed = allsites[i].split(" - ");
-        allsites[i] = parsed[1];
-      }      
-      $.post("addManage", {pathnames : allsites}, function(data){
+        parsed = second[i].split(" - ");
+        third.push(parsed[1]);
+      }     
+      var obj = {pathnames: third};
+      $.post("addManage", obj, function(data){
         if (data === "-1"){
           alert("There was an error, please try again.");
         }
