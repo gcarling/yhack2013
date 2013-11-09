@@ -84,18 +84,38 @@ app.get('/createone/:used', function(req, res) {
   }
 });
 var nameSchema = new Schema({
-    name: String,
+    name: String,//siteName --- NOT the path
     filePath: String,
+    dropid: String,
     token: String});
 var NameSchemaModel = mongoose.model("nameSchema", siteListSchema);
 
 app.post("/deletion", function(req, res) {
-    NameSchemaModel.findOne({"name": res.body.name}, function(err, data) {
-	data.remove();
-    });
-    
-    
+    User.findOne({"uniqueid": req.session.user_id},
+	function(err, data) {
+	    if(err) {throw err;}
+	        request.get('https://api.dropbox.com/1/account/info',
+			    {headers: { Authorization: 'Bearer ' + data.dtoken}},
+		   function(error, response, body) {
+		       if(error) {throw error;}
+		       deleteSiteEntry(JSON.parse(body).uid, req.filename);
+		   });
+	});
+});
+function deleteSiteEntry(dropid, filename) {
+    NameSchemaModel.findOne({"dropid": dropid, "name": name},
+	function(err, data) {
+	    if(err) {throw err;}
+	    data.remove()});
+    SiteListModel.findOne({"dropid": dropid},
+	function(err, data) {
+	    if(err) {throw err;}
+	    if(data.siteList.indexOf(filename) != -1) {
+		data.siteList.splice(data.siteList.indexOf(filename), 1);
+	    }
+	});
 }
+
 
 app.post('/createcallback', function(req, res) {
   var newfolder = req.body.sitename;
@@ -123,11 +143,6 @@ app.post('/createcallback', function(req, res) {
 			res.redirect("./createone");
 		    }
 		    //add folder here
-		    var newNameSchema = new NameSchemaModel({
-			name: newfolder,
-			filePath: "/" + newfolder,
-			token: token});
-		    newNameSchema.save();
 		    request.get('https://api.dropbox.com/1/account/info', {
 			headers: { Authorization: 'Bearer ' + token}},
 			function(error, response, body) {
@@ -139,6 +154,12 @@ app.post('/createcallback', function(req, res) {
 					id.siteList.push(newfolder);
 				    }
 				    else {
+					var newNameSchema = new NameSchemaModel({
+					    name: newfolder,
+					    filePath: "/" + newfolder,
+					    dropid: JSON.parse(body).uid,
+					    token: token});
+					newNameSchema.save();
 					var newList = new SiteListModel({
 					    dropid: JSON.parse(body).uid,
 					    siteList: [newfolder]});
