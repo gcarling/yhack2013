@@ -76,13 +76,22 @@ function generateRedirectURI(req) {
         });
 }
 
-app.get('/createone', function(req, res) {
-  res.sendfile("./createone.html");
+app.get('/createone/:used', function(req, res) {
+  var error = req.params.used;
+  if(error) {
+    res.sendfile("./createone-error.html");
+  } else {
+    res.sendfile("./createone.html");
+  }
 });
 
 app.post('/createcallback', function(req, res) {
   var newfolder = req.body.sitename;
   var userid = req.session.user_id; 
+  if(site-exists(newfolder)) {
+    res.redirect("./createone?used=true")
+    return;
+  }
   User.findOne({uniqueid : userid}, function(err, user) {
     if(err || !(user)) {
       throw err;
@@ -97,7 +106,7 @@ app.post('/createcallback', function(req, res) {
         throw error;
         res.redirect("./createone");
       }
-      res.redirect("./which");
+      res.redirect("./manage");
     });
   });
 });
@@ -158,7 +167,7 @@ app.get('/callback', function (req, res) {
                 var token = data.access_token;
                 addUserToDB(token, "name", unique_pid);
                 // use the bearer token to make API calls
-                requesr.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
+                request.get('https://api.dropbox.com/1/metadata/dropbox/Intranet/git', {
                         list : true,
                         file_limit:25000,
                         headers: { Authorization: 'Bearer ' + token }
