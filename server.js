@@ -168,7 +168,7 @@ app.post('/createcallback', function(req, res) {
                 res.redirect("./manage");
                 
             });
-            });
+        });
 	});
 });
 
@@ -227,7 +227,7 @@ app.get('/callback', function (req, res) {
 
                 // extract bearer token
                 var token = data.access_token;
-                addUserToDB(token, "name", unique_pid);
+                addUserToDB(token, "name", unique_id);
                 
                 // use token to get dropid and redirect to which, create
                 request.get('https://api.dropbox.com/1/account/info', 
@@ -386,7 +386,7 @@ function listIndexPaths(token, callback) {
             request.get(meta_uri + dirName, options, 
                 function (err, res, bod) {
                     var dirContents = JSON.parse(bod).contents;
-                    for each (item in dirContents) {
+                    for (item in dirContents) {
                         var split = item.path.split("/");
                         if (split[split.length-1] === "index.html") {
                             paths.push(JSON.parse(bod).path);
