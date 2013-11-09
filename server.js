@@ -154,7 +154,8 @@ app.get("/site/*", function(req, res) {
     var access_token = blob.token;
     console.log(access_token);
     var geturl = 'https://api-content.dropbox.com/1/files/dropbox' + headpath + "" + realfilepath;
-    ext = realfilepath.split(".");
+    ext_arr = realfilepath.split(".");
+    ext = ext_arr[ext_arr.length - 1];
     if(ext === "html" || ext === "css" || ext === "js") {
     request.get(geturl, {
       headers: { Authorization: 'Bearer ' + access_token}},
@@ -163,6 +164,12 @@ app.get("/site/*", function(req, res) {
     }); 
     } else {
       // link 'em
+      geturl = 'https://api.dropbox.com/1/media/dropbox' + headpath + realfilepath;
+        request.post(geturl, {headers: { Authorization: 'Bearer ' + access_token}},
+        function(error, response, body) {
+          if(error){throw error}
+          res.redirect(JSON.parse(body).url);
+      }); 
     }
   });   
 });
