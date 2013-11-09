@@ -131,35 +131,63 @@ app.get('/manage',  function(req, res) {
   });
 });
 
-app.get("/s/*", function(req, res) {
-  url = req.url; 
-  filepath = url.substring(3);
+app.get("/site/*", function(req, res) {
+  var url = req.url; 
+  // cuts off the /s/
+  var filepath = url.substring(3);
+  // gets the sitename (at the beginning of the filepath)
+  var sitename = filepath.split("/")[0];
+  // gets the real filepath, after sitename
+  var realfilepath = filepath.substring(sitename);
+  if(realfilepath === "/" || realfilepath === "") {
+    realfilepath = "/index.html";
+  }
+  NameSchemaModel.findOne({name : sitename}, function(err, blob) {
+    var headpath = blob.filePath;
+    var access_token = blob.token;
+    request.get('https://api-content.dropbox.com/1/files/dropbox' + headpath + realfilepath, {
+      headers: { Authorization: 'Bearer ' + access_token}},
+      function(error, response, body) {
+        if(error){throw error}
+        res.sendfile(body);
+    }); 
+  });   
 });
 
 app.post("/deletion", function(req, res) {
     User.findOne({"uniqueid": req.session.user_id},
 	function(err, data) {
-	    if(err) {throw err;}
-	        request.get('https://api.dropbox.com/1/account/info',
-			    {headers: { Authorization: 'Bearer ' + data.dtoken}},
-		   function(error, response, body) {
-		       if(error) {throw error;}
-		       deleteSiteEntry(JSON.parse(body).uid, req.filename);
-		   });
+	    if(err) {
+            res.send("-1");
+        }
+        request.get('https://api.dropbox.com/1/account/info',
+            {headers: { Authorization: 'Bearer ' + data.dtoken}},
+       function(error, response, body) {
+           if(error) {
+               res.send("-1");
+           }
+           deleteSiteEntry(JSON.parse(body).uid, req.body.sitename, res);
+       });
 	});
 });
 
-function deleteSiteEntry(dropid, filename) {
-    NameSchemaModel.findOne({"dropid": dropid, "name": filename},
+function deleteSiteEntry(dropid, sitename, res) {
+    NameSchemaModel.findOne({"dropid": dropid, "name": sitename},
 	function(err, data) {
-	    if(err) {throw err;}
+	    if(err) {
+            res.send("-1");
+        }
 	    data.remove()});
     SiteListModel.findOne({"dropid": dropid},
 	function(err, data) {
-	    if(err) {throw err;}
+	    if(err) {
+            res.send("-1");
+        }
 	    if(siteIndexOf(data.siteList,sitename) != -1) {
             data.siteList.splice(siteIndexOf(data.siteList,sitename), 1);
-            data.save();
+            data.save(function() {
+                res.send("1");
+            });
 	    }
 	});
 }
