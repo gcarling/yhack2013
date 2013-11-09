@@ -29,12 +29,6 @@ var siteListSchema = new Schema({
 var SiteListModel = mongoose.model("siteList", siteListSchema);
 var User = mongoose.model("user", userSchema);
 
-//var client = new Dropbox.Client({
-//    key: "dfxzvgtw5vbh0r4",
-//    secret: "y3fpf3zgcpxecpr"
-//});
-
-
 // Init express
 var app = express();
 
@@ -81,31 +75,59 @@ function generateRedirectURI(req) {
         });
 }
 
-app.get('/createone', function(req, res) {
-  res.sendfile("./createone.html");
+app.get('/createone/:used', function(req, res) {
+  var error = req.params.used;
+  if(error) {
+    res.sendfile("./createone-error.html");
+  } else {
+    res.sendfile("./createone.html");
+  }
 });
+var nameSchema = new Schema({
+    name: String,
+    filePath: String,
+    token: String});
+var NameSchemaModel = mongoose.model("nameSchema", siteListSchema);
+
 
 app.post('/createcallback', function(req, res) {
   var newfolder = req.body.sitename;
-  var userid = req.session.user_id; 
-  User.findOne({uniqueid : userid}, function(err, user) {
-    if(err || !(user)) {
-      throw err;
-    }
-    var access_token = user.dtoken;
-    request.get('https://api.dropbox.com/1/fileops/create_folder', {
-            root : "dropbox",
-            path : "/" + newfolder,
-            headers: { Authorization: 'Bearer ' + token }
-    }, function (error, response, body) {
-      if(error) {
-        throw error;
-        res.redirect("./createone");
-      }
-      res.redirect("./which");
-    });
-  });
+  var userid = req.session.user_id;
+  NameSchemaModel.findOne({"filePath" : newfolder},
+	function(err, id) {
+	    if(err) {throw err};
+	    else if(id) {
+		res.redirect("./createone?used=true")
+		return;
+	    }
+	    User.findOne({uniqueid : userid}, function(err, user) {
+		if(err || !(user)) {
+		    throw err;
+		}
+		
+		var access_token = user.dtoken;
+		request.get('https://api.dropbox.com/1/fileops/create_folder', {
+		    root : "dropbox",
+		    path : "/" + newfolder,
+		    headers: { Authorization: 'Bearer ' + token }
+		}, function (error, response, body) {
+		    if(error) {
+			throw error;
+			res.redirect("./createone");
+		    }
+		    //add folder here
+		    var newNameSchema = new NameSchemaModel({
+			name: newfolder,
+			filePath: "/" + newfolder,
+			token: token});
+		    newNameSchema.save();
+		    res.redirect("./manage");
+		    
+		});
+	    });
+	});
 });
+
 
 app.get('/dropbox', function (req, res) {
         var csrfToken = generateCSRFToken();
@@ -162,20 +184,21 @@ app.get('/callback', function (req, res) {
                 // extract bearer token
                 var token = data.access_token;
                 addUserToDB(token, "name", unique_pid);
+
                 // use token to get dropid and redirect to which, create
                 request.get('https://api.dropbox.com/1/account/info', 
                         {
-                            headers: { Authorization: 'Bearer ' + token }
+                          headers: { Authorization: 'Bearer ' + token }
                         },
                     function(error, response, body) {
-                        getRedirect(JSON.parse(body).uid);
+                        getRedirect(JSON.parse(body).uid, unique_id, token);
 			    });
         });
 });
 
 //takes in an array with the
 //path and an array of parameters for the redirect
-function getRedirect(dropid, userid, callback, token) {
+function getRedirect(dropid, userid, token) {
     SiteListModel.findOne({"dropid": dropid}, function(err, sitelist) {
         // if no previous dropid
         if(err || !sitelist || sitelist.siteList.length == 0) {
