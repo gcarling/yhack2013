@@ -439,7 +439,8 @@ app.post("/addManage", function(req, res) {
 				    count++;
 				}
 			    }
-			    
+			    res.location("./which");
+                            res.send(generateWhich(outpaths));
 			}
 		    });
 		});
