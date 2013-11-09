@@ -102,10 +102,11 @@ function generateManage(user_sites){
     build += "<button class='btn btn-primary a-site' id='site";
     build += i;
     build += "'>";
-    build += user_sites[i].name + " - " + user_sites[i].filepath;
+    build += user_sites[i].sitename + " - " + user_sites[i].filepath;
     build += "</button><button class='btn btn-primary delete' id='delete";
     build += i;
     build += "'>Delete</button></br>";
+    console.log(build);
   }
   return start + build + end;
 }
